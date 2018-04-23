@@ -26,9 +26,6 @@ import ch.pitaya.pitaya.payload.UserIdentityAvailability;
 import ch.pitaya.pitaya.repository.UserRepository;
 import ch.pitaya.pitaya.security.JwtTokenProvider;
 
-/**
- * Created by rajeevkumarsingh on 02/08/17.
- */
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -74,7 +71,7 @@ public class AuthController {
 				signUpRequest.getPassword());
 
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		
+
 		userRepository.saveAndFlush(user);
 
 		Authentication authentication = authenticationManager.authenticate(
@@ -85,7 +82,6 @@ public class AuthController {
 		String jwt = tokenProvider.generateToken(authentication);
 		return ResponseEntity.ok(new JwtAuthenticationResponse(jwt));
 	}
-	
 
 	@GetMapping("/usernameAvailable")
 	public UserIdentityAvailability checkUsernameAvailability(@RequestParam(value = "username") String username) {

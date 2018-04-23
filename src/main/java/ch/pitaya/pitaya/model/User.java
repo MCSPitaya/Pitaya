@@ -12,10 +12,6 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.NaturalId;
 
-/**
- * Created by rajeevkumarsingh on 01/08/17.
- */
-
 @Entity
 @Table(name = "users", uniqueConstraints = { @UniqueConstraint(columnNames = { "username" }),
 		@UniqueConstraint(columnNames = { "email" }) })
