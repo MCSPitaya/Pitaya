@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ch.pitaya.pitaya.payload.UserSummary;
 import ch.pitaya.pitaya.security.PrincipalFacade;
 
-@Secured("ROLE_USER")
 @RestController
 public class UserController {
 
