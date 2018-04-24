@@ -29,26 +29,28 @@ public class AuthController {
 
 	@Autowired
 	private UserService userService;
-	
+
 	@Autowired
 	private UserRepository userRepository;
 
 	@PostMapping("/login")
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-		Token token = authService.login(loginRequest.getUsernameOrEmail(), loginRequest.getPassword());
+		authService.login(loginRequest.getUsernameOrEmail(), loginRequest.getPassword());
+		Token token = authService.generateToken();
 		return ResponseEntity.ok(token);
 	}
 
 	@PostMapping("/register")
 	public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
 		userService.createUser(signUpRequest);
-		Token token = authService.login(signUpRequest.getUsername(), signUpRequest.getPassword());
+		authService.login(signUpRequest.getUsername(), signUpRequest.getPassword());
+		Token token = authService.generateToken();
 		return ResponseEntity.ok(token);
 	}
 
 	@PostMapping("/refresh")
 	public ResponseEntity<?> refreshToken() {
-		Token token = authService.refreshToken();
+		Token token = authService.generateToken();
 		return ResponseEntity.ok(token);
 	}
 

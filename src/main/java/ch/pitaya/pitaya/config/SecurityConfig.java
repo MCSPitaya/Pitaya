@@ -1,6 +1,7 @@
 package ch.pitaya.pitaya.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +19,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import ch.pitaya.pitaya.security.CustomUserDetailsService;
 import ch.pitaya.pitaya.security.JwtAuthenticationEntryPoint;
 import ch.pitaya.pitaya.security.JwtAuthenticationFilter;
+import ch.pitaya.pitaya.security.JwtTokenProvider;
+import ch.pitaya.pitaya.security.TokenProvider;
 
 @Configuration
 @EnableWebSecurity
@@ -33,6 +36,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Bean
 	public JwtAuthenticationFilter jwtAuthenticationFilter() {
 		return new JwtAuthenticationFilter();
+	}
+
+	@Bean
+	public TokenProvider accessTokenProvider( //
+			@Value("${pitaya.auth.access.secret}") String secret,
+			@Value("${pitaya.auth.access.expiration}") int expiration) {
+		return new JwtTokenProvider(secret, expiration);
+	}
+
+	@Bean
+	public TokenProvider refreshTokenProvider( //
+			@Value("${pitaya.auth.refresh.secret}") String secret,
+			@Value("${pitaya.auth.refresh.expiration}") int expiration) {
+		return new JwtTokenProvider(secret, expiration);
 	}
 
 	@Override
@@ -56,8 +73,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		http.cors().and().csrf().disable().exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
 				// auth services are free
-				.antMatchers("/auth/logout").authenticated()
-				.antMatchers("/auth/refresh").authenticated()
+				.antMatchers("/auth/logout").authenticated() //
+				.antMatchers("/auth/refresh").authenticated() //
 				.antMatchers("/auth/**").permitAll()
 				// anything else is locked down
 				.anyRequest().authenticated();

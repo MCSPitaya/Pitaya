@@ -19,7 +19,10 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
-    private JwtTokenProvider tokenProvider;
+    private TokenProvider accessTokenProvider;
+    
+    @Autowired
+    private TokenProvider refreshTokenProvider;
 
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
@@ -30,10 +33,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
         	boolean refreshToken = request.getServletPath().startsWith("/auth/");
-        	String jwt = getJwtFromRequest(request);
+        	
+        	TokenProvider tokenProvider = refreshToken
+        			? refreshTokenProvider
+        			: accessTokenProvider;
+        	
+        	String token = getTokenFromRequest(request);
 
-            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt, refreshToken)) {
-                Long userId = tokenProvider.getUserIdFromJWT(jwt, refreshToken);
+            if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
+                Long userId = tokenProvider.getUserIdFromToken(token);
 
                 UserDetails userDetails = customUserDetailsService.loadUserById(userId);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -48,7 +56,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String getJwtFromRequest(HttpServletRequest request) {
+    private String getTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7, bearerToken.length());

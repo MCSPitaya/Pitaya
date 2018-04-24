@@ -1,9 +1,17 @@
 package ch.pitaya.pitaya.security;
 
-public interface PrincipalFacade {
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
-	UserPrincipal getCurrentUser();
+@Component
+public class PrincipalFacade {
 
-	Long getCurrentUserId();
+	public UserPrincipal getCurrentUser() {
+		return (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	}
+
+	public Long getCurrentUserId() {
+		return getCurrentUser().getId();
+	}
 
 }
