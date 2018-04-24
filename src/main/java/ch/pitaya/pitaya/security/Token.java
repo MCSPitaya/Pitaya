@@ -1,18 +1,20 @@
 package ch.pitaya.pitaya.security;
 
 public class Token {
-	private String accessToken;
-	private String tokenType = "Bearer";
 
-	public Token(String accessToken) {
+	private String accessToken;
+	private String refreshToken;
+
+	public Token(String accessToken, String refreshToken) {
 		this.accessToken = accessToken;
+		this.refreshToken = refreshToken;
 	}
 
 	public String getAccessToken() {
 		return accessToken;
 	}
 
-	public String getTokenType() {
-		return tokenType;
+	public String getRefreshToken() {
+		return refreshToken;
 	}
 }

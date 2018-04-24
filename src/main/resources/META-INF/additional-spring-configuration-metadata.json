@@ -1,0 +1,22 @@
+{"properties": [
+  {
+    "name": "pitaya.auth.access.secret",
+    "type": "java.lang.String",
+    "description": "JWT secret for access tokens"
+  },
+  {
+    "name": "pitaya.auth.access.expiration",
+    "type": "java.lang.Long",
+    "description": "JWT access token expiration time in ms"
+  },
+  {
+    "name": "pitaya.auth.refresh.secret",
+    "type": "java.lang.String",
+    "description": "JWT secret for refresh tokens"
+  },
+  {
+    "name": "pitaya.auth.refresh.expiration",
+    "type": "java.lang.Long",
+    "description": "JWT refresh token expiration time in ms"
+  }
+]}

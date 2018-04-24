@@ -43,7 +43,9 @@ public class AuthService {
 		Authentication authentication = authenticationManager
 				.authenticate(new UsernamePasswordAuthenticationToken(user, password));
 		SecurityContextHolder.getContext().setAuthentication(authentication);
-		return new Token(tokenProvider.generateToken(authentication));
+		return new Token(
+				tokenProvider.generateAccessToken(authentication),
+				tokenProvider.generateRefreshToken(authentication));
 	}
 
 	/**
