@@ -18,6 +18,7 @@ import ch.pitaya.pitaya.payload.UserIdentityAvailability;
 import ch.pitaya.pitaya.repository.UserRepository;
 import ch.pitaya.pitaya.security.Token;
 import ch.pitaya.pitaya.service.AuthService;
+import ch.pitaya.pitaya.service.UserService;
 
 @RestController
 @RequestMapping("/auth")
@@ -26,6 +27,9 @@ public class AuthController {
 	@Autowired
 	private AuthService authService;
 
+	@Autowired
+	private UserService userService;
+	
 	@Autowired
 	private UserRepository userRepository;
 
@@ -37,7 +41,7 @@ public class AuthController {
 
 	@PostMapping("/register")
 	public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
-		authService.register(signUpRequest);
+		userService.createUser(signUpRequest);
 		Token token = authService.login(signUpRequest.getUsername(), signUpRequest.getPassword());
 		return ResponseEntity.ok(token);
 	}
