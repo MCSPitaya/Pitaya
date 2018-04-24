@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import ch.pitaya.pitaya.payload.ApiResponse;
 import ch.pitaya.pitaya.payload.LoginRequest;
 import ch.pitaya.pitaya.payload.SignUpRequest;
 import ch.pitaya.pitaya.payload.UserIdentityAvailability;
@@ -39,6 +40,17 @@ public class AuthController {
 		authService.register(signUpRequest);
 		Token token = authService.login(signUpRequest.getUsername(), signUpRequest.getPassword());
 		return ResponseEntity.ok(token);
+	}
+
+	@PostMapping("/refresh")
+	public ResponseEntity<?> refreshToken() {
+		Token token = authService.refreshToken();
+		return ResponseEntity.ok(token);
+	}
+
+	@PostMapping("/logout")
+	public ResponseEntity<?> logoutUser() {
+		return ResponseEntity.ok(new ApiResponse("logout successful"));
 	}
 
 	@GetMapping("/usernameAvailable")

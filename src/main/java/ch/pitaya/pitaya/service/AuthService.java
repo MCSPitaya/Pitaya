@@ -69,5 +69,15 @@ public class AuthService {
 
 		userRepository.saveAndFlush(user);
 	}
+	
+	/**
+	 * Creates a new Token from the authentication in the current security context
+	 */
+	public Token refreshToken() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		return new Token(
+				tokenProvider.generateAccessToken(authentication),
+				tokenProvider.generateRefreshToken(authentication));
+	}
 
 }
