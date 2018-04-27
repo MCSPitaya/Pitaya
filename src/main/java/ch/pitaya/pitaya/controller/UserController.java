@@ -6,18 +6,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.pitaya.pitaya.payload.UserSummary;
-import ch.pitaya.pitaya.security.PrincipalFacade;
+import ch.pitaya.pitaya.security.SecurityFacade;
 
 @RequestMapping("/api")
 @RestController
 public class UserController {
 
 	@Autowired
-	PrincipalFacade principalFacade;
+	SecurityFacade securityFacade;
 
 	@GetMapping("/user/me")
 	public UserSummary getCurrentUser() {
-		return new UserSummary(principalFacade.getCurrentUser());
+		return new UserSummary(securityFacade.getCurrentPrincipal());
 	}
 
 }

@@ -18,6 +18,7 @@ import ch.pitaya.pitaya.payload.UserIdentityAvailability;
 import ch.pitaya.pitaya.repository.UserRepository;
 import ch.pitaya.pitaya.security.Token;
 import ch.pitaya.pitaya.service.AuthService;
+import ch.pitaya.pitaya.service.TokenService;
 import ch.pitaya.pitaya.service.UserService;
 
 @RestController
@@ -29,6 +30,9 @@ public class AuthController {
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private TokenService tokenService;
 
 	@Autowired
 	private UserRepository userRepository;
@@ -36,7 +40,7 @@ public class AuthController {
 	@PostMapping("/login")
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 		authService.login(loginRequest.getUser(), loginRequest.getPassword());
-		Token token = authService.generateToken();
+		Token token = tokenService.generateTokenPair();
 		return ResponseEntity.ok(token);
 	}
 
@@ -44,19 +48,20 @@ public class AuthController {
 	public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
 		userService.createUser(signUpRequest);
 		authService.login(signUpRequest.getUsername(), signUpRequest.getPassword());
-		Token token = authService.generateToken();
+		Token token = tokenService.generateTokenPair();
 		return ResponseEntity.ok(token);
 	}
 
 	@PostMapping("/refresh")
 	public ResponseEntity<?> refreshToken() {
-		Token token = authService.generateToken();
+		Token token = tokenService.replaceToken();
 		return ResponseEntity.ok(token);
 	}
 
 	@PostMapping("/logout")
 	public ResponseEntity<?> logoutUser() {
-		return ResponseEntity.ok(new ApiResponse("logout successful"));
+		boolean removed = tokenService.revokeToken();
+		return ResponseEntity.ok(new ApiResponse(removed, "logout successful"));
 	}
 
 	@GetMapping("/usernameAvailable")
