@@ -9,7 +9,7 @@ import ch.pitaya.pitaya.payload.ApiResponse;
 @RestController
 public class HeartbeatController {
 
-	@GetMapping("/heartbeat")
+	@GetMapping("/api/heartbeat")
 	public ResponseEntity<?> heartbeat() {
 		return ResponseEntity.ok(new ApiResponse("heartbeat"));
 	}
