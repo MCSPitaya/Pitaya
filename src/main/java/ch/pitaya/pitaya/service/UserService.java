@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ch.pitaya.pitaya.exception.BadRequestException;
 import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.model.User;
+import ch.pitaya.pitaya.payload.request.ChangePasswordRequest;
 import ch.pitaya.pitaya.payload.request.SignUpRequest;
 import ch.pitaya.pitaya.repository.UserRepository;
 
@@ -39,6 +40,13 @@ public class UserService {
 				passwordEncoder.encode(request.getPassword()), firm);
 
 		userRepository.saveAndFlush(user);
+	}
+
+	public void changePassword(User user, ChangePasswordRequest request) {
+		if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword()))
+			throw new BadRequestException("incorrect password");
+		user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+		userRepository.save(user);
 	}
 
 }
