@@ -1,17 +1,19 @@
 package ch.pitaya.pitaya.model;
 
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotEmpty;
 
+@Entity
 public class File {
 
 	@Id
 	@GeneratedValue
 	private Long id;
 
-	@ManyToOne(targetEntity = Case.class)
+	@ManyToOne
 	private Case owner;
 
 	@NotEmpty

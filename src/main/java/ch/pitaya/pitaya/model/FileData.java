@@ -12,7 +12,7 @@ public class FileData {
 	@GeneratedValue
 	private Long id;
 
-	@ManyToOne(targetEntity=File.class)
+	@ManyToOne
 	private File file;
 
 	protected FileData() {
