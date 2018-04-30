@@ -55,7 +55,8 @@ public class CaseController {
 	@GetMapping("/{id}")
 	@Authorize(AuthCode.CASE_READ)
 	public CaseDetails getCaseDetails(@PathVariable Long id) {
-		Optional<Case> case_ = caseRepository.findById(id);
+		Firm firm = securityFacade.getCurrentFirm();
+		Optional<Case> case_ = caseRepository.findByIdAndFirm(id, firm);
 		if (case_.isPresent())
 			return new CaseDetails(case_.get());
 		throw new ResourceNotFoundException("case", "id", id);
@@ -73,7 +74,8 @@ public class CaseController {
 	@GetMapping("/{id}/files")
 	@Authorize(AuthCode.CASE_READ_FILES)
 	public List<FileSummary> getFileList(@PathVariable Long id) {
-		Optional<Case> case_ = caseRepository.findById(id);
+		Firm firm = securityFacade.getCurrentFirm();
+		Optional<Case> case_ = caseRepository.findByIdAndFirm(id, firm);
 		if (case_.isPresent()) {
 			List<File> files = fileRepository.findByTheCase(case_.get());
 			List<FileSummary> summaries = new ArrayList<>();
