@@ -1,5 +1,6 @@
 package ch.pitaya.pitaya.security;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 import org.slf4j.Logger;
@@ -26,19 +27,20 @@ public class JwtTokenProvider implements TokenProvider {
 
 	private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
-	public String generateToken(Authentication authentication) {
+	public RawToken generateToken(Authentication authentication) {
 
 		UserPrincipal userDetails = (UserPrincipal) authentication.getPrincipal();
 
 		Date now = new Date();
 		Date expiryDate = new Date(now.getTime() + expiration);
 
-		return Jwts.builder() //
+		String token = Jwts.builder() //
 				.setSubject(Long.toString(userDetails.getId())) //
 				.setIssuedAt(new Date()) //
 				.setExpiration(expiryDate) //
 				.signWith(SignatureAlgorithm.HS512, secret) //
 				.compact();
+		return new RawToken(token, new Timestamp(expiryDate.getTime()));
 	}
 
 	public Long getUserIdFromToken(String token) {

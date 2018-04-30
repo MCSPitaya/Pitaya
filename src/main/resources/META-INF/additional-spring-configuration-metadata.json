@@ -18,5 +18,10 @@
     "name": "pitaya.auth.refresh.expiration",
     "type": "java.lang.Long",
     "description": "JWT refresh token expiration time in ms"
+  },
+  {
+    "name": "pitaya.auth.refresh.deletionRate",
+    "type": "java.lang.Long",
+    "description": "The interval in ms with which expired refresh tokens get deleted"
   }
 ]}

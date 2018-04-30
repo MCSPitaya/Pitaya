@@ -1,7 +1,11 @@
 package ch.pitaya.pitaya.model;
 
+import java.sql.Timestamp;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -11,18 +15,22 @@ import javax.persistence.UniqueConstraint;
 public class TokenStore {
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long tokenId;
 
 	private String token;
+
+	@Column(name = "exp_dat")
+	private Timestamp expirationDate;
 
 	protected TokenStore() {
 		// JPA
 	}
 
-	public TokenStore(String token) {
+	public TokenStore(String token, Timestamp expirationDate) {
 		super();
 		this.token = token;
+		this.expirationDate = expirationDate;
 	}
 
 	public String getToken() {
@@ -35,6 +43,14 @@ public class TokenStore {
 
 	public Long getTokenId() {
 		return tokenId;
+	}
+
+	public Timestamp getExpirationDate() {
+		return expirationDate;
+	}
+
+	public void setExpirationDate(Timestamp expirationDate) {
+		this.expirationDate = expirationDate;
 	}
 
 }
