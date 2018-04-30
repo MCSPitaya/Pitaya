@@ -6,7 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.model.User;
+import ch.pitaya.pitaya.repository.FirmRepository;
 import ch.pitaya.pitaya.repository.UserRepository;
 
 @SpringBootApplication
@@ -17,9 +19,10 @@ public class PitayaApplication {
 	}
 
 	@Bean
-	CommandLineRunner init(UserRepository userRepo, PasswordEncoder bcrypt) {
+	CommandLineRunner init(UserRepository userRepo, FirmRepository firmRepo, PasswordEncoder bcrypt) {
 		return args -> {
-			userRepo.save(new User("Test User", "test", "test@test.com", bcrypt.encode("password")));
+			Firm firm = firmRepo.saveAndFlush(new Firm("Pitaya Test Firm"));
+			userRepo.saveAndFlush(new User("Test User", "test", "test@test.com", bcrypt.encode("password"), firm));
 		};
 	}
 

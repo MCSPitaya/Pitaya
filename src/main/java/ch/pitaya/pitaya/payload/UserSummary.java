@@ -1,25 +1,28 @@
 package ch.pitaya.pitaya.payload;
 
-import ch.pitaya.pitaya.security.UserPrincipal;
+import ch.pitaya.pitaya.model.User;
 
 public class UserSummary {
 	private Long id;
 	private String username;
 	private String name;
 	private String email;
+	private String firm;
 
-	public UserSummary(Long id, String username, String name, String email) {
+	public UserSummary(Long id, String username, String name, String email, String firm) {
 		this.id = id;
 		this.username = username;
 		this.name = name;
 		this.email = email;
+		this.firm = firm;
 	}
 
-	public UserSummary(UserPrincipal principal) {
-		this.id = principal.getId();
-		this.username = principal.getUsername();
-		this.name = principal.getName();
-		this.email = principal.getEmail();
+	public UserSummary(User user) {
+		this.id = user.getId();
+		this.username = user.getUsername();
+		this.name = user.getName();
+		this.email = user.getEmail();
+		this.firm = user.getFirm().getName();
 	}
 
 	public Long getId() {
@@ -52,5 +55,13 @@ public class UserSummary {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public String getFirm() {
+		return firm;
+	}
+
+	public void setFirm(String firm) {
+		this.firm = firm;
 	}
 }

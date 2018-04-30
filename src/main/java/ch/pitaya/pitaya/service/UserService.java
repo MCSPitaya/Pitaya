@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import ch.pitaya.pitaya.exception.BadRequestException;
+import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.model.User;
 import ch.pitaya.pitaya.payload.SignUpRequest;
 import ch.pitaya.pitaya.repository.UserRepository;
@@ -26,7 +27,7 @@ public class UserService {
 	 * @throws BadRequestException
 	 *             if the username or email is already taken
 	 */
-	public void createUser(SignUpRequest request) {
+	public void createUser(SignUpRequest request, Firm firm) {
 		if (userRepository.existsByUsername(request.getUsername()))
 			throw new BadRequestException("Username is already taken!");
 
@@ -35,7 +36,7 @@ public class UserService {
 
 		// Creating user's account
 		User user = new User(request.getName(), request.getUsername(), request.getEmail(),
-				passwordEncoder.encode(request.getPassword()));
+				passwordEncoder.encode(request.getPassword()), firm);
 
 		userRepository.saveAndFlush(user);
 	}

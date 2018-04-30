@@ -4,6 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Email;
@@ -38,15 +40,20 @@ public class User {
 	@Size(max = 100)
 	private String password;
 
+	@ManyToOne(targetEntity = Firm.class)
+	@JoinColumn(name = "person_id")
+	private Firm firm;
+
 	public User() {
 
 	}
 
-	public User(String name, String username, String email, String password) {
+	public User(String name, String username, String email, String password, Firm firm) {
 		this.name = name;
 		this.username = username;
 		this.email = email;
 		this.password = password;
+		this.firm = firm;
 	}
 
 	public Long getId() {
@@ -87,6 +94,14 @@ public class User {
 
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public Firm getFirm() {
+		return firm;
+	}
+
+	public void setFirm(Firm firm) {
+		this.firm = firm;
 	}
 
 }

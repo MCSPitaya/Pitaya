@@ -17,7 +17,12 @@ public class UserController {
 
 	@GetMapping("/user/me")
 	public UserSummary getCurrentUser() {
-		return new UserSummary(securityFacade.getCurrentPrincipal());
+		return new UserSummary(securityFacade.getCurrentUser());
+	}
+
+	@GetMapping("/user/name")
+	public String getCurrentUserName() {
+		return securityFacade.getCurrentUser().getName();
 	}
 
 }

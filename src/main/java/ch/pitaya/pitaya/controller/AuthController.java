@@ -13,13 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ch.pitaya.pitaya.payload.ApiResponse;
 import ch.pitaya.pitaya.payload.LoginRequest;
-import ch.pitaya.pitaya.payload.SignUpRequest;
 import ch.pitaya.pitaya.payload.UserIdentityAvailability;
 import ch.pitaya.pitaya.repository.UserRepository;
 import ch.pitaya.pitaya.security.Token;
 import ch.pitaya.pitaya.service.AuthService;
 import ch.pitaya.pitaya.service.TokenService;
-import ch.pitaya.pitaya.service.UserService;
 
 @RestController
 @RequestMapping("/auth")
@@ -29,9 +27,6 @@ public class AuthController {
 	private AuthService authService;
 
 	@Autowired
-	private UserService userService;
-	
-	@Autowired
 	private TokenService tokenService;
 
 	@Autowired
@@ -40,14 +35,6 @@ public class AuthController {
 	@PostMapping("/login")
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 		authService.login(loginRequest.getUser(), loginRequest.getPassword());
-		Token token = tokenService.generateTokenPair();
-		return ResponseEntity.ok(token);
-	}
-
-	@PostMapping("/register")
-	public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
-		userService.createUser(signUpRequest);
-		authService.login(signUpRequest.getUsername(), signUpRequest.getPassword());
 		Token token = tokenService.generateTokenPair();
 		return ResponseEntity.ok(token);
 	}
