@@ -14,6 +14,8 @@ public class Case {
 
 	private String caseNumber;
 
+	private String title;
+
 	@ManyToOne(targetEntity = Firm.class)
 	private Firm firm;
 
@@ -21,11 +23,11 @@ public class Case {
 		// JPA
 	}
 
-	public Case(String caseNumber, Firm firm) {
+	public Case(Firm firm, String caseNumber, String title) {
 		this.caseNumber = caseNumber;
 	}
 
-	public void setCaseNumber(String caseNumber, Firm firm) {
+	public void setCaseNumber(String caseNumber) {
 		this.caseNumber = caseNumber;
 	}
 
@@ -47,6 +49,14 @@ public class Case {
 
 	public void setFirm(Firm firm) {
 		this.firm = firm;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 }
