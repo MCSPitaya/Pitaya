@@ -8,21 +8,16 @@ import org.springframework.web.bind.annotation.RestController;
 import ch.pitaya.pitaya.payload.UserSummary;
 import ch.pitaya.pitaya.security.SecurityFacade;
 
-@RequestMapping("/api")
+@RequestMapping("/api/user")
 @RestController
 public class UserController {
 
 	@Autowired
 	SecurityFacade securityFacade;
 
-	@GetMapping("/user/me")
+	@GetMapping("/info")
 	public UserSummary getCurrentUser() {
 		return new UserSummary(securityFacade.getCurrentUser());
-	}
-
-	@GetMapping("/user/name")
-	public String getCurrentUserName() {
-		return securityFacade.getCurrentUser().getName();
 	}
 
 }
