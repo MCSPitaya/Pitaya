@@ -33,4 +33,8 @@ public class TokenStore {
 		this.token = token;
 	}
 
+	public Long getTokenId() {
+		return tokenId;
+	}
+
 }

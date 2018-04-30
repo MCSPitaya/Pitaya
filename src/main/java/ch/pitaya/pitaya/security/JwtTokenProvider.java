@@ -17,9 +17,9 @@ import io.jsonwebtoken.UnsupportedJwtException;
 public class JwtTokenProvider implements TokenProvider {
 
 	private final String secret;
-	private final int expiration;
+	private final long expiration;
 
-	public JwtTokenProvider(String secret, int expiration) {
+	public JwtTokenProvider(String secret, long expiration) {
 		this.secret = secret;
 		this.expiration = expiration;
 	}

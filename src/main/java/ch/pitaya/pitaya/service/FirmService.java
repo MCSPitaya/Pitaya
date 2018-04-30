@@ -26,8 +26,8 @@ public class FirmService {
 		if (request.getCity() != null) {
 			firm.setCity(request.getCity());
 		}
-		if (request.getNumber() != null) {
-			firm.setNumber(request.getNumber());
+		if (request.getZipCode() != null) {
+			firm.setZipCode(request.getZipCode());
 		}
 		firmRepository.save(firm);
 	}

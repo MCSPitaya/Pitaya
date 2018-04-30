@@ -41,14 +41,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Bean
 	public TokenProvider accessTokenProvider( //
 			@Value("${pitaya.auth.access.secret}") String secret,
-			@Value("${pitaya.auth.access.expiration}") int expiration) {
+			@Value("${pitaya.auth.access.expiration}") long expiration) {
 		return new JwtTokenProvider(secret, expiration);
 	}
 
 	@Bean
 	public TokenProvider refreshTokenProvider( //
 			@Value("${pitaya.auth.refresh.secret}") String secret,
-			@Value("${pitaya.auth.refresh.expiration}") int expiration) {
+			@Value("${pitaya.auth.refresh.expiration}") long expiration) {
 		return new JwtTokenProvider(secret, expiration);
 	}
 

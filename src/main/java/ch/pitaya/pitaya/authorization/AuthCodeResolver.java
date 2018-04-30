@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.h2.util.StringUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Component
 public class AuthCodeResolver {
 
 	public List<AuthCode> decode(String codes) {
-		if (StringUtils.isNullOrEmpty(codes))
+		if (StringUtils.isEmpty(codes))
 			return Collections.emptyList();
 		List<AuthCode> list = new ArrayList<>();
 		for (String code : codes.split(",")) {
