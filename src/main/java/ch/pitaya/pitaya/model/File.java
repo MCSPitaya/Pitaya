@@ -14,7 +14,7 @@ public class File {
 	private Long id;
 
 	@ManyToOne
-	private Case owner;
+	private Case theCase;
 
 	@NotEmpty
 	private String name;
@@ -23,8 +23,8 @@ public class File {
 		// JPA
 	}
 
-	public File(String name, Case owner) {
-		this.owner = owner;
+	public File(String name, Case theCase) {
+		this.theCase = theCase;
 		this.name = name;
 	}
 
@@ -36,8 +36,8 @@ public class File {
 		return name;
 	}
 
-	public Case getOwner() {
-		return owner;
+	public Case getCase() {
+		return theCase;
 	}
 
 	public void setId(Long id) {
@@ -48,8 +48,8 @@ public class File {
 		this.name = name;
 	}
 
-	public void setOwner(Case owner) {
-		this.owner = owner;
+	public void setCase(Case theCase) {
+		this.theCase = theCase;
 	}
 
 }

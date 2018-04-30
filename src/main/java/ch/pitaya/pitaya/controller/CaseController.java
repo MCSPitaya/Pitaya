@@ -16,11 +16,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ch.pitaya.pitaya.exception.ResourceNotFoundException;
 import ch.pitaya.pitaya.model.Case;
+import ch.pitaya.pitaya.model.File;
 import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.payload.request.CreateCaseRequest;
 import ch.pitaya.pitaya.payload.response.CaseDetails;
 import ch.pitaya.pitaya.payload.response.CaseSummary;
+import ch.pitaya.pitaya.payload.response.FileSummary;
 import ch.pitaya.pitaya.repository.CaseRepository;
+import ch.pitaya.pitaya.repository.FileRepository;
 import ch.pitaya.pitaya.security.SecurityFacade;
 
 @RestController
@@ -32,6 +35,9 @@ public class CaseController {
 
 	@Autowired
 	private CaseRepository caseRepository;
+
+	@Autowired
+	private FileRepository fileRepository;
 
 	@GetMapping
 	public List<CaseSummary> getCaseList() {
@@ -57,6 +63,20 @@ public class CaseController {
 		Case case_ = caseRepository
 				.save(new Case(firm, request.getNumber(), request.getTitle(), request.getDescription()));
 		return new CaseDetails(case_);
+	}
+
+	@GetMapping("/{id}/files")
+	public List<FileSummary> getFileList(@PathVariable Long id) {
+		Optional<Case> case_ = caseRepository.findById(id);
+		if (case_.isPresent()) {
+			List<File> files = fileRepository.findByTheCase(case_.get());
+			List<FileSummary> summaries = new ArrayList<>();
+			for (File f : files) {
+				summaries.add(new FileSummary(f.getId(), f.getName()));
+			}
+			return summaries;
+		}
+		throw new ResourceNotFoundException("case", "id", id);
 	}
 
 }
