@@ -76,6 +76,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.antMatchers("/auth/logout").authenticated() //
 				.antMatchers("/auth/refresh").authenticated() //
 				.antMatchers("/auth/**").permitAll()
+				.antMatchers("/test/**").permitAll()
 				// anything else is locked down
 				.anyRequest().authenticated();
 
