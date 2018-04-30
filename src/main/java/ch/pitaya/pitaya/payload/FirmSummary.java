@@ -1,42 +1,32 @@
-package ch.pitaya.pitaya.model;
+package ch.pitaya.pitaya.payload;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.validation.constraints.NotBlank;
+import ch.pitaya.pitaya.model.Firm;
 
-@Entity
-public class Firm {
-
-	@Id
-	@GeneratedValue
-	private Long id;
-
-	@NotBlank
-	private String name;
+public class FirmSummary {
 	
+	private Long id;
+	private String name;
 	private String street;
-
 	private String number;
-
 	private String zipCode;
-
 	private String city;
-
-	protected Firm() {
-		// JPA
-	}
-
-	public Firm(String name) {
+	
+	public FirmSummary(Long id, String name, String street, String number, String zipCode, String city) {
+		this.id = id;
 		this.name = name;
+		this.street = street;
+		this.number = number;
+		this.zipCode = zipCode;
+		this.city = city;
 	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
+	
+	public FirmSummary(Firm firm) {
+		this.id = firm.getId();
+		this.name = firm.getName();
+		this.street = firm.getStreet();
+		this.number = firm.getNumber();
+		this.zipCode = firm.getZipCode();
+		this.city = firm.getCity();
 	}
 
 	public Long getId() {
@@ -45,6 +35,14 @@ public class Firm {
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getStreet() {
