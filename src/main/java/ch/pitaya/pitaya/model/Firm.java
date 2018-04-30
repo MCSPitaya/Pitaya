@@ -16,11 +16,8 @@ public class Firm {
 	private String name;
 	
 	private String street;
-
 	private String number;
-
 	private String zipCode;
-
 	private String city;
 
 	protected Firm() {
