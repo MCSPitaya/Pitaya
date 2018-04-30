@@ -13,11 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 import ch.pitaya.pitaya.exception.ResourceNotFoundException;
 import ch.pitaya.pitaya.model.Case;
 import ch.pitaya.pitaya.model.Firm;
-import ch.pitaya.pitaya.payload.CaseDetails;
-import ch.pitaya.pitaya.payload.CaseSummary;
+import ch.pitaya.pitaya.payload.response.CaseDetails;
+import ch.pitaya.pitaya.payload.response.CaseSummary;
 import ch.pitaya.pitaya.repository.CaseRepository;
 import ch.pitaya.pitaya.security.SecurityFacade;
-import ch.pitaya.pitaya.service.CaseService;
 
 @RestController
 @RequestMapping("/api/case")
@@ -27,15 +26,12 @@ public class CaseController {
 	private SecurityFacade securityFacade;
 
 	@Autowired
-	private CaseService caseService;
-
-	@Autowired
 	private CaseRepository caseRepository;
 
 	@GetMapping
 	public List<CaseSummary> getCaseList() {
 		Firm firm = securityFacade.getCurrentFirm();
-		List<Case> cases = caseService.getCaseList(firm);
+		List<Case> cases = caseRepository.findByFirm(firm);
 		List<CaseSummary> response = new ArrayList<>(cases.size());
 		for (Case c : cases)
 			response.add(new CaseSummary(c));
@@ -49,4 +45,6 @@ public class CaseController {
 			return new CaseDetails(case_.get());
 		throw new ResourceNotFoundException("case", "id", id);
 	}
+	
+	
 }

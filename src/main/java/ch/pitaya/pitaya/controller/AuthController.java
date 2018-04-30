@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import ch.pitaya.pitaya.payload.ApiResponse;
-import ch.pitaya.pitaya.payload.LoginRequest;
-import ch.pitaya.pitaya.payload.UserIdentityAvailability;
+import ch.pitaya.pitaya.payload.request.LoginRequest;
+import ch.pitaya.pitaya.payload.response.ApiResponse;
+import ch.pitaya.pitaya.payload.response.UserIdentityAvailability;
 import ch.pitaya.pitaya.repository.UserRepository;
 import ch.pitaya.pitaya.security.Token;
 import ch.pitaya.pitaya.service.AuthService;

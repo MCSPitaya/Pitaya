@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ch.pitaya.pitaya.payload.UserSummary;
+import ch.pitaya.pitaya.payload.response.UserSummary;
 import ch.pitaya.pitaya.security.SecurityFacade;
 
 @RequestMapping("/api/user")

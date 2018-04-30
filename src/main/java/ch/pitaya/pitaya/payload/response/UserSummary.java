@@ -1,4 +1,4 @@
-package ch.pitaya.pitaya.payload;
+package ch.pitaya.pitaya.payload.response;
 
 import ch.pitaya.pitaya.model.User;
 

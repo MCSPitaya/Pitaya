@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import ch.pitaya.pitaya.exception.BadRequestException;
 import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.model.User;
-import ch.pitaya.pitaya.payload.SignUpRequest;
+import ch.pitaya.pitaya.payload.request.SignUpRequest;
 import ch.pitaya.pitaya.repository.UserRepository;
 
 @Service

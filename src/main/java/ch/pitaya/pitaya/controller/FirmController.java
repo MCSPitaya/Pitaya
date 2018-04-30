@@ -11,10 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.pitaya.pitaya.model.Firm;
-import ch.pitaya.pitaya.payload.ApiResponse;
-import ch.pitaya.pitaya.payload.FirmSummary;
-import ch.pitaya.pitaya.payload.SignUpRequest;
-import ch.pitaya.pitaya.payload.UserSummary;
+import ch.pitaya.pitaya.payload.request.SignUpRequest;
+import ch.pitaya.pitaya.payload.response.ApiResponse;
+import ch.pitaya.pitaya.payload.response.FirmSummary;
 import ch.pitaya.pitaya.security.SecurityFacade;
 import ch.pitaya.pitaya.service.UserService;
 

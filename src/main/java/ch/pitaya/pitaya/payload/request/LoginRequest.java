@@ -1,4 +1,4 @@
-package ch.pitaya.pitaya.payload;
+package ch.pitaya.pitaya.payload.request;
 
 import javax.validation.constraints.NotBlank;
 
