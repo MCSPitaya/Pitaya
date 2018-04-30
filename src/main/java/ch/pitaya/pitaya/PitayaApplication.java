@@ -22,7 +22,8 @@ public class PitayaApplication {
 	CommandLineRunner init(UserRepository userRepo, FirmRepository firmRepo, PasswordEncoder bcrypt) {
 		return args -> {
 			Firm firm = firmRepo.saveAndFlush(new Firm("Pitaya Test Firm"));
-			userRepo.saveAndFlush(new User("Test User", "test", "test@test.com", bcrypt.encode("password"), firm));
+			userRepo.saveAndFlush(
+					new User("Test User", "test", "test@test.com", bcrypt.encode("password"), firm, "ADMIN"));
 		};
 	}
 

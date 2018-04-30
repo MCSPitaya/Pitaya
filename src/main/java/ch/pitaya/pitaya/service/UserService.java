@@ -37,7 +37,7 @@ public class UserService {
 
 		// Creating user's account
 		User user = new User(request.getName(), request.getUsername(), request.getEmail(),
-				passwordEncoder.encode(request.getPassword()), firm);
+				passwordEncoder.encode(request.getPassword()), firm, "BASIC_USER");
 
 		userRepository.saveAndFlush(user);
 	}

@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ch.pitaya.pitaya.authorization.AuthCode;
+import ch.pitaya.pitaya.authorization.Authorization;
 import ch.pitaya.pitaya.exception.ResourceNotFoundException;
 import ch.pitaya.pitaya.model.Case;
 import ch.pitaya.pitaya.model.File;
@@ -39,8 +41,12 @@ public class CaseController {
 	@Autowired
 	private FileRepository fileRepository;
 
+	@Autowired
+	private Authorization auth;
+
 	@GetMapping
 	public List<CaseSummary> getCaseList() {
+		auth.require(AuthCode.CASE_READ);
 		Firm firm = securityFacade.getCurrentFirm();
 		List<Case> cases = caseRepository.findByFirm(firm);
 		List<CaseSummary> response = new ArrayList<>(cases.size());
@@ -51,6 +57,7 @@ public class CaseController {
 
 	@GetMapping("/{id}")
 	public CaseDetails getCaseDetails(@PathVariable Long id) {
+		auth.require(AuthCode.CASE_READ);
 		Optional<Case> case_ = caseRepository.findById(id);
 		if (case_.isPresent())
 			return new CaseDetails(case_.get());
@@ -59,6 +66,7 @@ public class CaseController {
 
 	@PostMapping
 	public CaseDetails createCase(@Valid @RequestBody CreateCaseRequest request) {
+		auth.require(AuthCode.CASE_CREATE);
 		Firm firm = securityFacade.getCurrentFirm();
 		Case case_ = caseRepository
 				.save(new Case(firm, request.getNumber(), request.getTitle(), request.getDescription()));
@@ -67,6 +75,7 @@ public class CaseController {
 
 	@GetMapping("/{id}/files")
 	public List<FileSummary> getFileList(@PathVariable Long id) {
+		auth.require(AuthCode.CASE_READ_FILES);
 		Optional<Case> case_ = caseRepository.findById(id);
 		if (case_.isPresent()) {
 			List<File> files = fileRepository.findByTheCase(case_.get());

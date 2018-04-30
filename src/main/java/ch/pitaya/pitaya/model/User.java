@@ -42,16 +42,19 @@ public class User {
 	@ManyToOne(targetEntity = Firm.class)
 	private Firm firm;
 
+	private String authCodes;
+
 	public User() {
 
 	}
 
-	public User(String name, String username, String email, String password, Firm firm) {
+	public User(String name, String username, String email, String password, Firm firm, String authCodes) {
 		this.name = name;
 		this.username = username;
 		this.email = email;
 		this.password = password;
 		this.firm = firm;
+		this.authCodes = authCodes;
 	}
 
 	public Long getId() {
@@ -100,6 +103,14 @@ public class User {
 
 	public void setFirm(Firm firm) {
 		this.firm = firm;
+	}
+
+	public String getAuthCodes() {
+		return authCodes;
+	}
+
+	public void setAuthCodes(String authCodes) {
+		this.authCodes = authCodes;
 	}
 
 }

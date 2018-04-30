@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ch.pitaya.pitaya.authorization.AuthCode;
+import ch.pitaya.pitaya.authorization.Authorization;
 import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.payload.request.SignUpRequest;
 import ch.pitaya.pitaya.payload.response.ApiResponse;
@@ -27,15 +29,19 @@ public class FirmController {
 	@Autowired
 	private SecurityFacade securityFacade;
 
+	@Autowired
+	Authorization authorization;
+
 	@PostMapping("/addUser")
 	public ResponseEntity<?> addUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+		authorization.require(AuthCode.USER_CREATE);
 		Firm firm = securityFacade.getCurrentFirm();
 		userService.createUser(signUpRequest, firm);
 		return ResponseEntity.ok(new ApiResponse("user created"));
 	}
-	
+
 	@GetMapping("/info")
-	public FirmSummary getFirmInfo( ) {
+	public FirmSummary getFirmInfo() {
 		return new FirmSummary(securityFacade.getCurrentFirm());
 	}
 }
