@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ch.pitaya.pitaya.authorization.AuthCode;
 import ch.pitaya.pitaya.authorization.Authorization;
+import ch.pitaya.pitaya.authorization.Authorize;
 import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.payload.request.PatchFirmRequest;
 import ch.pitaya.pitaya.payload.request.SignUpRequest;
@@ -40,8 +41,8 @@ public class FirmController {
 	Authorization authorization;
 
 	@PostMapping("/addUser")
+	@Authorize(AuthCode.USER_CREATE)
 	public ResponseEntity<?> addUser(@Valid @RequestBody SignUpRequest signUpRequest) {
-		authorization.require(AuthCode.USER_CREATE);
 		Firm firm = securityFacade.getCurrentFirm();
 		userService.createUser(signUpRequest, firm);
 		return ResponseEntity.ok(new ApiResponse("user created"));
@@ -53,6 +54,7 @@ public class FirmController {
 	}
 	
 	@PatchMapping("/info")
+	@Authorize(AuthCode.FIRM_MODIFY)
 	public ResponseEntity<?> patchFirmInfo(@RequestBody PatchFirmRequest request) {
 		firmService.editFirm(request, securityFacade.getCurrentFirm());
 		return SimpleResponse.ok("Update successful"); 
