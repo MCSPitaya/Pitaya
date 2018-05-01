@@ -12,12 +12,6 @@ public class CreateCaseRequest {
 
 	private String description;
 
-	public CreateCaseRequest(String number, String title, String description) {
-		this.title = title;
-		this.number = number;
-		this.description = description;
-	}
-
 	public String getNumber() {
 		return number;
 	}

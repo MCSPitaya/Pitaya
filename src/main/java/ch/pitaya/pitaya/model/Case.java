@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 
@@ -33,11 +34,12 @@ public class Case {
 
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	private Firm firm;
-	
-	@OneToMany(mappedBy="theCase")
+
+	@OneToMany(mappedBy = "theCase")
 	private List<File> files;
-	
-	@OneToMany(mappedBy="theCase")
+
+	@OneToMany(mappedBy = "theCase")
+	@OrderBy("cre_dat DESC")
 	private List<Notification> notifications;
 
 	protected Case() {
@@ -48,6 +50,7 @@ public class Case {
 		this.caseNumber = caseNumber;
 		this.title = title;
 		this.description = description;
+		this.firm = firm;
 	}
 
 	public void setCaseNumber(String caseNumber) {
@@ -89,11 +92,11 @@ public class Case {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
+
 	public List<File> getFiles() {
 		return files;
 	}
-	
+
 	public List<Notification> getNotifications() {
 		return notifications;
 	}

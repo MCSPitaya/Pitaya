@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotEmpty;
@@ -33,6 +34,7 @@ public class File {
 	private List<FileData> fileData;
 	
 	@OneToMany(mappedBy = "file")
+	@OrderBy("cre_dat DESC")
 	private List<Notification> notifications;
 
 	@NotEmpty
