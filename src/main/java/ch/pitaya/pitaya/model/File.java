@@ -1,5 +1,7 @@
 package ch.pitaya.pitaya.model;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -8,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotEmpty;
@@ -25,6 +28,9 @@ public class File {
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "case_id", nullable = false, updatable = false)
 	private Case theCase;
+
+	@OneToMany(mappedBy = "file")
+	private List<FileData> fileData;
 
 	@NotEmpty
 	@Size(max = 80)
@@ -64,4 +70,8 @@ public class File {
 		this.theCase = theCase;
 	}
 
+	public List<FileData> getFileData() {
+		return fileData;
+	}
+	
 }

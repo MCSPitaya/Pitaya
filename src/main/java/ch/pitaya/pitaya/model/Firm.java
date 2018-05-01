@@ -1,10 +1,13 @@
 package ch.pitaya.pitaya.model;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 
@@ -25,6 +28,12 @@ public class Firm {
 	private String number;
 	private String zipCode;
 	private String city;
+	
+	@OneToMany(mappedBy="firm")
+	private List<User> users;
+	
+	@OneToMany(mappedBy="firm")
+	private List<Case> cases;
 
 	protected Firm() {
 		// JPA
@@ -82,4 +91,12 @@ public class Firm {
 		this.city = city;
 	}
 
+	public List<User> getUsers() {
+		return users;
+	}
+	
+	public List<Case> getCases() {
+		return cases;
+	}
+	
 }

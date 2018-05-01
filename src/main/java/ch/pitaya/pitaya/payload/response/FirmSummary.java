@@ -10,6 +10,7 @@ public class FirmSummary {
 	private String number;
 	private String zipCode;
 	private String city;
+	private int userCount;
 	
 	public FirmSummary(Long id, String name, String street, String number, String zipCode, String city) {
 		this.id = id;
@@ -27,6 +28,7 @@ public class FirmSummary {
 		this.number = firm.getNumber();
 		this.zipCode = firm.getZipCode();
 		this.city = firm.getCity();
+		this.userCount = firm.getUsers().size();
 	}
 
 	public Long getId() {
@@ -77,4 +79,8 @@ public class FirmSummary {
 		this.city = city;
 	}
 
+	public int getUserCount() {
+		return userCount;
+	}
+	
 }

@@ -1,5 +1,7 @@
 package ch.pitaya.pitaya.model;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -7,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 
@@ -30,6 +33,9 @@ public class Case {
 
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	private Firm firm;
+	
+	@OneToMany(mappedBy="theCase")
+	private List<File> files;
 
 	protected Case() {
 		// JPA
@@ -79,6 +85,10 @@ public class Case {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	public List<File> getFiles() {
+		return files;
 	}
 
 }

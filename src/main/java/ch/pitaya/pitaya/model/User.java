@@ -1,5 +1,7 @@
 package ch.pitaya.pitaya.model;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -7,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -46,6 +49,9 @@ public class User {
 
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	private Firm firm;
+
+	@OneToMany(mappedBy = "user")
+	private List<Token> tokens;
 
 	@NotBlank
 	@Column(nullable = false)
@@ -118,6 +124,10 @@ public class User {
 
 	public void setAuthCodes(String authCodes) {
 		this.authCodes = authCodes;
+	}
+
+	public List<Token> getTokens() {
+		return tokens;
 	}
 
 }
