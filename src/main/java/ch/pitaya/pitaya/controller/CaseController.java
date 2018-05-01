@@ -25,7 +25,6 @@ import ch.pitaya.pitaya.payload.response.CaseDetails;
 import ch.pitaya.pitaya.payload.response.CaseSummary;
 import ch.pitaya.pitaya.payload.response.FileSummary;
 import ch.pitaya.pitaya.repository.CaseRepository;
-import ch.pitaya.pitaya.repository.FileRepository;
 import ch.pitaya.pitaya.security.SecurityFacade;
 
 @RestController
@@ -38,14 +37,11 @@ public class CaseController {
 	@Autowired
 	private CaseRepository caseRepository;
 
-	@Autowired
-	private FileRepository fileRepository;
-
 	@GetMapping
 	@Authorize(AuthCode.CASE_READ)
 	public List<CaseSummary> getCaseList() {
 		Firm firm = securityFacade.getCurrentFirm();
-		List<Case> cases = caseRepository.findByFirm(firm);
+		List<Case> cases = firm.getCases();
 		List<CaseSummary> response = new ArrayList<>(cases.size());
 		for (Case c : cases)
 			response.add(new CaseSummary(c));
@@ -77,7 +73,7 @@ public class CaseController {
 		Firm firm = securityFacade.getCurrentFirm();
 		Optional<Case> case_ = caseRepository.findByIdAndFirm(id, firm);
 		if (case_.isPresent()) {
-			List<File> files = fileRepository.findByTheCase(case_.get());
+			List<File> files = case_.get().getFiles();
 			List<FileSummary> summaries = new ArrayList<>();
 			for (File f : files) {
 				summaries.add(new FileSummary(f.getId(), f.getName()));
