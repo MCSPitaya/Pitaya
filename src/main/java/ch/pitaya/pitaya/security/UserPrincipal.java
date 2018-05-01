@@ -31,10 +31,12 @@ public class UserPrincipal implements UserDetails {
 	@JsonIgnore
 	private String token;
 
+	private boolean active;
+	
 	private Collection<? extends GrantedAuthority> authorities;
 
 	public UserPrincipal(Long id, String name, String username, String email, String password,
-			Collection<? extends GrantedAuthority> authorities, String token) {
+			Collection<? extends GrantedAuthority> authorities, String token, boolean active) {
 		this.id = id;
 		this.name = name;
 		this.username = username;
@@ -42,6 +44,7 @@ public class UserPrincipal implements UserDetails {
 		this.password = password;
 		this.authorities = authorities;
 		this.token = token;
+		this.active = active;
 	}
 
 	public static UserPrincipal create(User user, String token) {
@@ -49,7 +52,7 @@ public class UserPrincipal implements UserDetails {
 		authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
 
 		return new UserPrincipal(user.getId(), user.getName(), user.getUsername(), user.getEmail(), user.getPassword(),
-				authorities, token);
+				authorities, token, user.isActive());
 	}
 
 	public Long getId() {
@@ -118,4 +121,9 @@ public class UserPrincipal implements UserDetails {
 
 		return Objects.hash(id);
 	}
+	
+	boolean isActive() {
+		return active;
+	}
+	
 }

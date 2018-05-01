@@ -57,6 +57,10 @@ public class User {
 	@Column(nullable = false)
 	private String authCodes;
 
+	private boolean active;
+
+	private boolean techUser;
+
 	public User() {
 
 	}
@@ -68,6 +72,8 @@ public class User {
 		this.password = password;
 		this.firm = firm;
 		this.authCodes = authCodes;
+		this.active = true;
+		this.techUser = false;
 	}
 
 	public Long getId() {
@@ -128,6 +134,18 @@ public class User {
 
 	public List<Token> getTokens() {
 		return tokens;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
+	public boolean isTechUser() {
+		return techUser;
 	}
 
 }
