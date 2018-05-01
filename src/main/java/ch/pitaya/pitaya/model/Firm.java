@@ -28,12 +28,15 @@ public class Firm {
 	private String number;
 	private String zipCode;
 	private String city;
-	
-	@OneToMany(mappedBy="firm")
+
+	@OneToMany(mappedBy = "firm")
 	private List<User> users;
-	
-	@OneToMany(mappedBy="firm")
+
+	@OneToMany(mappedBy = "firm")
 	private List<Case> cases;
+
+	@OneToMany(mappedBy = "firm")
+	private List<Notification> notifications;
 
 	protected Firm() {
 		// JPA
@@ -94,9 +97,12 @@ public class Firm {
 	public List<User> getUsers() {
 		return users;
 	}
-	
+
 	public List<Case> getCases() {
 		return cases;
 	}
-	
+
+	public List<Notification> getNotifications() {
+		return notifications;
+	}
 }

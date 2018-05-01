@@ -36,6 +36,9 @@ public class Case {
 	
 	@OneToMany(mappedBy="theCase")
 	private List<File> files;
+	
+	@OneToMany(mappedBy="theCase")
+	private List<Notification> notifications;
 
 	protected Case() {
 		// JPA
@@ -89,6 +92,10 @@ public class Case {
 	
 	public List<File> getFiles() {
 		return files;
+	}
+	
+	public List<Notification> getNotifications() {
+		return notifications;
 	}
 
 }

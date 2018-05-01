@@ -31,6 +31,9 @@ public class File {
 
 	@OneToMany(mappedBy = "file")
 	private List<FileData> fileData;
+	
+	@OneToMany(mappedBy = "file")
+	private List<Notification> notifications;
 
 	@NotEmpty
 	@Size(max = 80)
@@ -72,6 +75,10 @@ public class File {
 
 	public List<FileData> getFileData() {
 		return fileData;
+	}
+	
+	public List<Notification> getNotifications() {
+		return notifications;
 	}
 	
 }

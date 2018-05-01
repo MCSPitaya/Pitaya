@@ -53,6 +53,9 @@ public class User {
 	@OneToMany(mappedBy = "user")
 	private List<Token> tokens;
 
+	@OneToMany(mappedBy = "user")
+	private List<Notification> notifications;
+
 	@NotBlank
 	@Column(nullable = false)
 	private String authCodes;
@@ -128,6 +131,10 @@ public class User {
 
 	public List<Token> getTokens() {
 		return tokens;
+	}
+
+	public List<Notification> getNotifications() {
+		return notifications;
 	}
 
 }
