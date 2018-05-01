@@ -8,16 +8,19 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotBlank;
 
 @Entity
-@Table(name = "tokenStore", uniqueConstraints = { @UniqueConstraint(columnNames = "token") })
+@Table(name = "tokens")
 public class TokenStore {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long tokenId;
 
+	@NotBlank
+
+	@Column(nullable = false)
 	private String token;
 
 	@Column(name = "exp_dat")

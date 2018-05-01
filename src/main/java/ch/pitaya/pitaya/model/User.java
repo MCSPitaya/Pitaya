@@ -1,12 +1,12 @@
 package ch.pitaya.pitaya.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -14,34 +14,40 @@ import javax.validation.constraints.Size;
 import org.hibernate.annotations.NaturalId;
 
 @Entity
-@Table(name = "users", uniqueConstraints = { @UniqueConstraint(columnNames = { "username" }),
-		@UniqueConstraint(columnNames = { "email" }) })
+@Table(name = "users")
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(updatable = false)
 	private Long id;
 
 	@NotBlank
 	@Size(max = 40)
+	@Column(nullable = false)
 	private String name;
 
 	@NotBlank
 	@Size(max = 15)
+	@Column(nullable = false, unique = true, updatable = false)
 	private String username;
 
 	@NaturalId
 	@NotBlank
 	@Size(max = 40)
 	@Email
+	@Column(nullable = false, unique = true)
 	private String email;
 
 	@NotBlank
 	@Size(max = 100)
+	@Column(nullable = false)
 	private String password;
 
-	@ManyToOne(targetEntity = Firm.class)
+	@ManyToOne(optional = false)
 	private Firm firm;
 
+	@NotBlank
+	@Column(nullable = false)
 	private String authCodes;
 
 	public User() {

@@ -1,21 +1,26 @@
 package ch.pitaya.pitaya.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 
 @Entity
+@Table(name = "firms")
 public class Firm {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(updatable = false)
 	private Long id;
 
 	@NotBlank
+	@Column(nullable = false)
 	private String name;
-	
+
 	private String street;
 	private String number;
 	private String zipCode;
