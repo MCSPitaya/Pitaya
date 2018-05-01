@@ -1,11 +1,16 @@
 package ch.pitaya.pitaya.security;
 
-public class Token {
+public class TokenPair {
 
 	private String accessToken;
 	private String refreshToken;
 
-	public Token(String accessToken, String refreshToken) {
+	public TokenPair(RawToken accessToken, RawToken refreshToken) {
+		this.accessToken = accessToken.getToken();
+		this.refreshToken = refreshToken.getToken();
+	}
+	
+	public TokenPair(String accessToken, String refreshToken) {
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
 	}

@@ -40,7 +40,7 @@ public class JwtTokenProvider implements TokenProvider {
 				.setExpiration(expiryDate) //
 				.signWith(SignatureAlgorithm.HS512, secret) //
 				.compact();
-		return new RawToken(token, new Timestamp(expiryDate.getTime()));
+		return new RawToken(token, new Timestamp(now.getTime()), new Timestamp(expiryDate.getTime()));
 	}
 
 	public Long getUserIdFromToken(String token) {

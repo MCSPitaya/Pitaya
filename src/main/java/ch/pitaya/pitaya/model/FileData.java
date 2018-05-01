@@ -1,6 +1,7 @@
 package ch.pitaya.pitaya.model;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -13,7 +14,7 @@ public class FileData {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	private File file;
 
 	protected FileData() {

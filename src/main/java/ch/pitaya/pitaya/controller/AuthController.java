@@ -15,7 +15,7 @@ import ch.pitaya.pitaya.payload.request.LoginRequest;
 import ch.pitaya.pitaya.payload.response.ApiResponse;
 import ch.pitaya.pitaya.payload.response.UserIdentityAvailability;
 import ch.pitaya.pitaya.repository.UserRepository;
-import ch.pitaya.pitaya.security.Token;
+import ch.pitaya.pitaya.security.TokenPair;
 import ch.pitaya.pitaya.service.AuthService;
 import ch.pitaya.pitaya.service.TokenService;
 
@@ -35,13 +35,13 @@ public class AuthController {
 	@PostMapping("/login")
 	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 		authService.login(loginRequest.getUser(), loginRequest.getPassword());
-		Token token = tokenService.generateTokenPair();
+		TokenPair token = tokenService.generateTokenPair();
 		return ResponseEntity.ok(token);
 	}
 
 	@PostMapping("/refresh")
 	public ResponseEntity<?> refreshToken() {
-		Token token = tokenService.replaceToken();
+		TokenPair token = tokenService.replaceToken();
 		return ResponseEntity.ok(token);
 	}
 
