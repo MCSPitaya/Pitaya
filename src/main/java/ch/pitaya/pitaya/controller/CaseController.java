@@ -1,6 +1,5 @@
 package ch.pitaya.pitaya.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +25,7 @@ import ch.pitaya.pitaya.payload.response.CaseSummary;
 import ch.pitaya.pitaya.payload.response.FileSummary;
 import ch.pitaya.pitaya.repository.CaseRepository;
 import ch.pitaya.pitaya.security.SecurityFacade;
+import ch.pitaya.pitaya.util.Utils;
 
 @RestController
 @RequestMapping("/api/case")
@@ -42,10 +42,7 @@ public class CaseController {
 	public List<CaseSummary> getCaseList() {
 		Firm firm = securityFacade.getCurrentFirm();
 		List<Case> cases = firm.getCases();
-		List<CaseSummary> response = new ArrayList<>(cases.size());
-		for (Case c : cases)
-			response.add(new CaseSummary(c));
-		return response;
+		return Utils.map(cases, CaseSummary::new);
 	}
 
 	@GetMapping("/{id}")
@@ -74,11 +71,7 @@ public class CaseController {
 		Optional<Case> case_ = caseRepository.findByIdAndFirm(id, firm);
 		if (case_.isPresent()) {
 			List<File> files = case_.get().getFiles();
-			List<FileSummary> summaries = new ArrayList<>();
-			for (File f : files) {
-				summaries.add(new FileSummary(f.getId(), f.getName()));
-			}
-			return summaries;
+			return Utils.map(files, f -> new FileSummary(f.getId(), f.getName()));
 		}
 		throw new ResourceNotFoundException("case", "id", id);
 	}
