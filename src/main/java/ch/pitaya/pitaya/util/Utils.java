@@ -1,7 +1,5 @@
 package ch.pitaya.pitaya.util;
 
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -25,7 +23,7 @@ public class Utils {
 	}
 
 	public static <T> List<T> paginate(List<T> list, int start, int size, Predicate<T> filter) {
-		Stream<T> stream = list.stream().filter(filter).skip(start);
+		Stream<T> stream = list.stream().filter(filter).skip(start * size);
 		if (size > 0)
 			stream = stream.limit(size);
 		return stream.collect(Collectors.toList());
