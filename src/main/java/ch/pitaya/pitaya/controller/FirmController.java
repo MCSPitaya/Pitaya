@@ -70,4 +70,5 @@ public class FirmController {
 		List<User> users = securityFacade.getCurrentFirm().getUsers();
 		return Utils.map(users, UserSummary::new);
 	}
+
 }

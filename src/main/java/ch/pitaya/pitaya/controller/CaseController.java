@@ -19,12 +19,14 @@ import ch.pitaya.pitaya.exception.ResourceNotFoundException;
 import ch.pitaya.pitaya.model.Case;
 import ch.pitaya.pitaya.model.File;
 import ch.pitaya.pitaya.model.Firm;
+import ch.pitaya.pitaya.model.NotificationType;
 import ch.pitaya.pitaya.payload.request.CreateCaseRequest;
 import ch.pitaya.pitaya.payload.response.CaseDetails;
 import ch.pitaya.pitaya.payload.response.CaseSummary;
 import ch.pitaya.pitaya.payload.response.FileSummary;
 import ch.pitaya.pitaya.repository.CaseRepository;
 import ch.pitaya.pitaya.security.SecurityFacade;
+import ch.pitaya.pitaya.service.NotificationService;
 import ch.pitaya.pitaya.util.Utils;
 
 @RestController
@@ -33,6 +35,9 @@ public class CaseController {
 
 	@Autowired
 	private SecurityFacade securityFacade;
+
+	@Autowired
+	private NotificationService notificationService;
 
 	@Autowired
 	private CaseRepository caseRepository;
@@ -61,6 +66,7 @@ public class CaseController {
 		Firm firm = securityFacade.getCurrentFirm();
 		Case case_ = caseRepository
 				.save(new Case(firm, request.getNumber(), request.getTitle(), request.getDescription()));
+		notificationService.add(NotificationType.CASE_CREATED, case_);
 		return new CaseDetails(case_);
 	}
 

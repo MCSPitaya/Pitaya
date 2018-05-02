@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 
@@ -28,12 +29,16 @@ public class Firm {
 	private String number;
 	private String zipCode;
 	private String city;
-	
-	@OneToMany(mappedBy="firm")
+
+	@OneToMany(mappedBy = "firm")
 	private List<User> users;
-	
-	@OneToMany(mappedBy="firm")
+
+	@OneToMany(mappedBy = "firm")
 	private List<Case> cases;
+
+	@OneToMany(mappedBy = "firm")
+	@OrderBy("cre_dat DESC")
+	private List<Notification> notifications;
 
 	protected Firm() {
 		// JPA
@@ -94,9 +99,12 @@ public class Firm {
 	public List<User> getUsers() {
 		return users;
 	}
-	
+
 	public List<Case> getCases() {
 		return cases;
 	}
-	
+
+	public List<Notification> getNotifications() {
+		return notifications;
+	}
 }

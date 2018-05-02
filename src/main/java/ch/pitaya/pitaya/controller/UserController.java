@@ -18,6 +18,7 @@ import ch.pitaya.pitaya.payload.response.SimpleResponse;
 import ch.pitaya.pitaya.payload.response.UserSummary;
 import ch.pitaya.pitaya.repository.UserRepository;
 import ch.pitaya.pitaya.security.SecurityFacade;
+import ch.pitaya.pitaya.service.NotificationService;
 import ch.pitaya.pitaya.service.UserService;
 
 @RequestMapping("/api/user")
@@ -26,6 +27,9 @@ public class UserController {
 
 	@Autowired
 	SecurityFacade securityFacade;
+
+	@Autowired
+	NotificationService notificationService;
 
 	@Autowired
 	UserService userService;

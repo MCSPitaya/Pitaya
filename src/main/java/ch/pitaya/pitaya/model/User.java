@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -52,6 +53,10 @@ public class User {
 
 	@OneToMany(mappedBy = "user")
 	private List<Token> tokens;
+
+	@OneToMany(mappedBy = "user")
+	@OrderBy("cre_dat DESC")
+	private List<Notification> notifications;
 
 	@NotBlank
 	@Column(nullable = false)
@@ -136,6 +141,9 @@ public class User {
 		return tokens;
 	}
 
+	public List<Notification> getNotifications() {
+		return notifications;
+  
 	public boolean isActive() {
 		return active;
 	}
