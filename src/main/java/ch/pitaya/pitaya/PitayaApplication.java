@@ -23,6 +23,7 @@ public class PitayaApplication {
 	@Bean
 	CommandLineRunner init(UserRepository userRepo, FirmRepository firmRepo, PasswordEncoder bcrypt) {
 		return args -> {
+			// create test user
 			if (!userRepo.findByUsernameOrEmail("test", "test").isPresent()) {
 				Firm firm = firmRepo.saveAndFlush(new Firm("Pitaya Test Firm"));
 				userRepo.saveAndFlush(
