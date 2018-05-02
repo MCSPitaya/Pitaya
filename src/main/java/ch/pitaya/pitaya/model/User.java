@@ -156,5 +156,9 @@ public class User {
 	public boolean isTechUser() {
 		return techUser;
 	}
+	
+	public void setTechUser(boolean techUser) {
+		this.techUser = techUser;
+	}
 
 }
