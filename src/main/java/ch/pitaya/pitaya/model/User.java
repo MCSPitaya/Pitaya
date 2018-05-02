@@ -143,7 +143,8 @@ public class User {
 
 	public List<Notification> getNotifications() {
 		return notifications;
-  
+	}
+
 	public boolean isActive() {
 		return active;
 	}
