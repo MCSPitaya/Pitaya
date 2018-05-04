@@ -120,7 +120,7 @@ public class RightsController {
 		}).orElseThrow(() -> new ResourceNotFoundException("case", "id", cid));
 	}
 
-	@GetMapping("/user/{uid}/rights/file/{fid}")
+	@PostMapping("/user/{uid}/rights/file/{fid}")
 	public ResponseEntity<?> getFileAuthCodes(@PathVariable("uid") Long uid, @PathVariable("fid") Long fid,
 			AuthCodeChangeRequest r) {
 		Firm firm = securityFacade.getCurrentFirm();
