@@ -6,6 +6,7 @@ import java.util.Optional;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -61,6 +62,7 @@ public class CaseController {
 	}
 
 	@PostMapping
+	@Transactional
 	@Authorize(AuthCode.CASE_CREATE)
 	public CaseDetails createCase(@Valid @RequestBody CreateCaseRequest request) {
 		Firm firm = securityFacade.getCurrentFirm();
