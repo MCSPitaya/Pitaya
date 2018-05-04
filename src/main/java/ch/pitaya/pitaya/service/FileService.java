@@ -26,6 +26,7 @@ import ch.pitaya.pitaya.exception.BadRequestException;
 import ch.pitaya.pitaya.model.Case;
 import ch.pitaya.pitaya.model.File;
 import ch.pitaya.pitaya.model.FileData;
+import ch.pitaya.pitaya.model.NotificationType;
 import ch.pitaya.pitaya.payload.request.PatchFileDetailsRequest;
 import ch.pitaya.pitaya.repository.FileDataRepository;
 import ch.pitaya.pitaya.repository.FileRepository;
@@ -40,6 +41,9 @@ public class FileService {
 
 	@Autowired
 	private FileDataRepository fileDataRepository;
+	
+	@Autowired
+	private NotificationService notificationService;
 
 	@Autowired
 	public FileService(EntityManagerFactory factory) {
@@ -71,6 +75,7 @@ public class FileService {
 				FileData fileData = new FileData(file,
 						createBlob(multipartFile.getInputStream(), multipartFile.getSize()));
 				fileData = fileDataRepository.save(fileData);
+				notificationService.add(NotificationType.FILE_CREATED, file);
 			} catch (IOException e) {
 				throw new BadRequestException("Upload failed", e);
 			}
@@ -85,6 +90,7 @@ public class FileService {
 				throw new BadRequestException("File with that name already exists for this case");
 			} else {
 				file.setName(request.getName());
+				notificationService.add(NotificationType.FILE_MODIFIED, file);
 			}
 		}
 		fileRepository.save(file);
@@ -111,6 +117,7 @@ public class FileService {
 		try {
 			FileData fileData = new FileData(file, createBlob(multipartFile.getInputStream(), multipartFile.getSize()));
 			fileData = fileDataRepository.save(fileData);
+			notificationService.add(NotificationType.FILE_VERSION_ADDED);
 		} catch (IOException e) {
 			throw new BadRequestException("Upload failed", e);
 		}
@@ -121,6 +128,7 @@ public class FileService {
 		List<FileData> fileDataList = file.getFileData();
 		System.out.println("List with files to delete: " + fileDataList.size());
 		fileDataRepository.deleteAll(fileDataList);
+		notificationService.add(NotificationType.FILE_DELETED);
 		System.out.println("Deleted");
 	}
 }
