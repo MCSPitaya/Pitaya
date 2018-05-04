@@ -49,5 +49,13 @@ public class FileData {
 	public void setFile(File file) {
 		this.file = file;
 	}
+	
+	public Blob getData() {
+		return this.data;
+	}
+	
+	public void setData(Blob data) {
+		this.data = data;
+	}
 
 }
