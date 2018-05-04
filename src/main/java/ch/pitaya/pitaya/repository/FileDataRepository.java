@@ -7,12 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ch.pitaya.pitaya.model.File;
 import ch.pitaya.pitaya.model.FileData;
-import ch.pitaya.pitaya.model.Firm;
 
 @Transactional
 public interface FileDataRepository extends JpaRepository<FileData, Long> {
-
-	//Optional<FileData> findByIdAndFileTheCaseFirm(Long id, Firm firm);
 	
 	Optional<FileData> findByFile(File file);
 
