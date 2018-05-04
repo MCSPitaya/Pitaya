@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -110,6 +111,20 @@ public class FileController {
 			} catch (IOException e) {
 				throw new BadRequestException("Upload failed", e);
 			}
+		}
+		throw new BadRequestException("Invalid file id");
+	}
+	
+	@DeleteMapping("/{id}/content")
+	@Authorize(AuthCode.FILE_EDIT)
+	public ResponseEntity<?> deleteFile(@PathVariable Long id) {
+		Optional<File> file_ = fileRepository.findById(id);
+		if (file_.isPresent()) {
+			List<FileData> fileDataList = file_.get().getFileData();
+			System.out.println("List with files to delete: " + fileDataList.size());
+			fileDataRepository.deleteAll(fileDataList);
+			System.out.println("Deleted");
+			return SimpleResponse.ok("Deletion successful");
 		}
 		throw new BadRequestException("Invalid file id");
 	}
