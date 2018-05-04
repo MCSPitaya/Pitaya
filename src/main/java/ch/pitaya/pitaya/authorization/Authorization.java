@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.pitaya.pitaya.exception.AuthorizationException;
+import ch.pitaya.pitaya.model.Case;
+import ch.pitaya.pitaya.model.File;
 import ch.pitaya.pitaya.model.User;
 import ch.pitaya.pitaya.security.SecurityFacade;
 
@@ -28,14 +30,43 @@ public class Authorization {
 	 *             at least one auth code is missing
 	 */
 	public void require(AuthCode... authCodes) {
-		User user = securityFacade.getCurrentUser();
-		List<AuthCode> codes = resolver.decode(user.getAuthCodes());
+		if (!test(authCodes))
+			throw new AuthorizationException(authCodes);
+	}
 
-		for (AuthCode code : authCodes) {
+	public void require(Case caze, AuthCode... authCodes) {
+		if (!test(caze, authCodes))
+			throw new AuthorizationException(authCodes);
+	}
+
+	public void require(File file, AuthCode... authCodes) {
+		if (!test(file, authCodes))
+			throw new AuthorizationException(authCodes);
+	}
+
+	public boolean test(AuthCode... authCodes) {
+		User user = securityFacade.getCurrentUser();
+		return test(authCodes, user.getAuthCodes(), null, null);
+	}
+
+	public boolean test(Case caze, AuthCode... authCodes) {
+		User user = securityFacade.getCurrentUser();
+		return test(authCodes, user.getAuthCodes(), caze.getAuthCodes(user), null);
+	}
+
+	public boolean test(File file, AuthCode... authCodes) {
+		User user = securityFacade.getCurrentUser();
+		return test(authCodes, user.getAuthCodes(), file.getCase().getAuthCodes(user), file.getAuthCodes(user));
+	}
+
+	private boolean test(AuthCode[] need, String _user, String _case, String _file) {
+		List<AuthCode> codes = resolver.decode(_user, _case, _file);
+		for (AuthCode code : need) {
 			if (!codes.contains(code)) {
-				throw new AuthorizationException(authCodes);
+				return false;
 			}
 		}
+		return true;
 	}
 
 }

@@ -3,12 +3,15 @@ package ch.pitaya.pitaya.controller;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import ch.pitaya.pitaya.authorization.AuthCode;
+import ch.pitaya.pitaya.authorization.Authorization;
 import ch.pitaya.pitaya.authorization.Authorize;
 import ch.pitaya.pitaya.exception.BadRequestException;
 import ch.pitaya.pitaya.exception.ResourceNotFoundException;
@@ -36,8 +40,8 @@ import ch.pitaya.pitaya.repository.FileDataRepository;
 import ch.pitaya.pitaya.repository.FileRepository;
 import ch.pitaya.pitaya.security.SecurityFacade;
 import ch.pitaya.pitaya.service.FileService;
+import ch.pitaya.pitaya.service.CaseService;
 import ch.pitaya.pitaya.service.NotificationService;
-import ch.pitaya.pitaya.util.Utils;
 
 @RestController
 @RequestMapping("/api/case")
@@ -61,26 +65,31 @@ public class CaseController {
 	@Autowired
 	private FileDataRepository fileDataRepository;
 
+	@Autowired
+	private CaseService caseService;
+
+	@Autowired
+	private Authorization auth;
+
 	@GetMapping
 	@Authorize(AuthCode.CASE_READ)
-	public List<CaseSummary> getCaseList() {
+	public Stream<CaseSummary> getCaseList() {
 		Firm firm = securityFacade.getCurrentFirm();
-		List<Case> cases = firm.getCases();
-		return Utils.map(cases, CaseSummary::new);
+		return firm.getCases().stream().filter(c -> auth.test(c, AuthCode.CASE_READ)).map(CaseSummary::new);
 	}
 
 	@GetMapping("/{id}")
-	@Authorize(AuthCode.CASE_READ)
 	public CaseDetails getCaseDetails(@PathVariable Long id) {
 		Firm firm = securityFacade.getCurrentFirm();
-		Optional<Case> case_ = caseRepository.findByIdAndFirm(id, firm);
+		Optional<Case> case_ = caseRepository.findByIdAndFirm(id, firm).filter(c -> auth.test(c, AuthCode.CASE_READ));
 		if (case_.isPresent())
 			return new CaseDetails(case_.get());
 		throw new ResourceNotFoundException("case", "id", id);
 	}
 
 	@PostMapping
-	@Authorize(AuthCode.CASE_CREATE)
+	@Transactional
+	@Authorize(AuthCode.FIRM_CASE_CREATE)
 	public CaseDetails createCase(@Valid @RequestBody CreateCaseRequest request) {
 		Firm firm = securityFacade.getCurrentFirm();
 		Case case_ = caseRepository
@@ -91,12 +100,21 @@ public class CaseController {
 
 	@GetMapping("/{id}/files")
 	@Authorize(AuthCode.CASE_READ_FILES)
-	public List<FileSummary> getFileList(@PathVariable Long id) {
+	public Stream<FileSummary> getFileList(@PathVariable Long id) {
+		Firm firm = securityFacade.getCurrentFirm();
+		Optional<Case> case_ = caseRepository.findByIdAndFirm(id, firm);
+		if (case_.isPresent())
+			return case_.get().getFiles().stream().filter(f -> auth.test(f, AuthCode.FILE_READ)).map(FileSummary::new);
+		throw new ResourceNotFoundException("case", "id", id);
+	}
+
+	@PatchMapping("/{id}")
+	public Object patchCase(@PathVariable("id") Long id) {
 		Firm firm = securityFacade.getCurrentFirm();
 		Optional<Case> case_ = caseRepository.findByIdAndFirm(id, firm);
 		if (case_.isPresent()) {
-			List<File> files = case_.get().getFiles();
-			return Utils.map(files, f -> new FileSummary(f.getId(), f.getName()));
+			caseService.patchCase(case_.get());
+			return SimpleResponse.ok("case updated");
 		}
 		throw new ResourceNotFoundException("case", "id", id);
 	}

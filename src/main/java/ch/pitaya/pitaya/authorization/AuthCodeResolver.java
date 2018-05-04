@@ -2,6 +2,7 @@ package ch.pitaya.pitaya.authorization;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
@@ -9,6 +10,44 @@ import org.springframework.util.StringUtils;
 
 @Component
 public class AuthCodeResolver {
+
+	private final HashSet<AuthCode> userCodes = new HashSet<>();
+	private final HashSet<AuthCode> caseCodes = new HashSet<>();
+	private final HashSet<AuthCode> fileCodes = new HashSet<>();
+
+	public AuthCodeResolver() {
+		// load code maps
+		for (AuthCode code : AuthCode.values()) {
+			String name = code.toString();
+			if (name.startsWith("CASE_"))
+				caseCodes.add(code);
+			else if (name.startsWith("FILE_"))
+				fileCodes.add(code);
+			else
+				userCodes.add(code);
+		}
+
+	}
+
+	// TODO: caching
+	public List<AuthCode> decode(String _user, String _case, String _file) {
+		List<AuthCode> codes = decode(_user);
+		if (_case != null) {
+			codes.removeAll(caseCodes);
+			codes.removeAll(fileCodes);
+			List<AuthCode> c = decode(_case);
+			c.removeAll(userCodes);
+			codes.addAll(c);
+		}
+		if (_file != null) {
+			codes.removeAll(fileCodes);
+			List<AuthCode> c = decode(_file);
+			c.removeAll(userCodes);
+			c.removeAll(caseCodes);
+			codes.addAll(c);
+		}
+		return codes;
+	}
 
 	public List<AuthCode> decode(String codes) {
 		if (StringUtils.isEmpty(codes))
