@@ -1,5 +1,6 @@
 package ch.pitaya.pitaya.model;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,12 @@ public class Case {
 	@CollectionTable(name = "case_auth_codes", joinColumns = @JoinColumn(name = "case_id"))
 	private Map<User, String> authCodes = new HashMap<>();
 
+	@Column(nullable = false, updatable = false)
+	private Timestamp cre_dat;
+
+	@Column(nullable = false, updatable = false)
+	private Timestamp mod_dat;
+
 	protected Case() {
 		// JPA
 	}
@@ -50,6 +57,8 @@ public class Case {
 		this.title = title;
 		this.description = description;
 		this.firm = firm;
+		this.cre_dat = new Timestamp(System.currentTimeMillis());
+		this.mod_dat = this.cre_dat;
 	}
 
 	public void setCaseNumber(String caseNumber) {
@@ -110,6 +119,22 @@ public class Case {
 
 	public void setAuthCodes(User user, String auth_codes) {
 		authCodes.put(user, auth_codes);
+	}
+
+	public Timestamp getCreationTime() {
+		return cre_dat;
+	}
+
+	public Timestamp getModificationTime() {
+		return mod_dat;
+	}
+	
+	public void setModificationTime(Timestamp mod_dat) {
+		this.mod_dat = mod_dat;
+	}
+	
+	public void updateModificationTime() {
+		this.mod_dat = new Timestamp(System.currentTimeMillis());
 	}
 
 }

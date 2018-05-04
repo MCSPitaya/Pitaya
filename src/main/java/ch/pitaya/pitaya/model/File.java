@@ -1,5 +1,6 @@
 package ch.pitaya.pitaya.model;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,7 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "files", uniqueConstraints = { //
-@UniqueConstraint(columnNames = { "case_id", "name" }) })
+		@UniqueConstraint(columnNames = { "case_id", "name" }) })
 public class File {
 
 	@Id
@@ -35,13 +36,14 @@ public class File {
 	@JoinColumn(name = "case_id", nullable = false, updatable = false)
 	private Case theCase;
 
+	@OrderBy("cre_dat DESC")
 	@OneToMany(mappedBy = "file")
 	private List<FileData> fileData;
-	
+
 	@OneToMany(mappedBy = "file")
 	@OrderBy("cre_dat DESC")
 	private List<Notification> notifications;
-	
+
 	@ElementCollection
 	@MapKeyJoinColumn(name = "user_id")
 	@Column(name = "auth_codes")
@@ -53,6 +55,12 @@ public class File {
 	@Column(nullable = false)
 	private String name;
 
+	@Column(nullable = false, updatable = false)
+	private Timestamp cre_dat;
+
+	@Column(nullable = false, updatable = false)
+	private Timestamp mod_dat;
+
 	protected File() {
 		// JPA
 	}
@@ -60,6 +68,8 @@ public class File {
 	public File(String name, Case theCase) {
 		this.theCase = theCase;
 		this.name = name;
+		this.cre_dat = new Timestamp(System.currentTimeMillis());
+		this.mod_dat = this.cre_dat;
 	}
 
 	public Long getId() {
@@ -89,11 +99,10 @@ public class File {
 	public List<FileData> getFileData() {
 		return fileData;
 	}
-	
+
 	public List<Notification> getNotifications() {
 		return notifications;
 	}
-	
 
 	public Map<User, String> getAuthCodes() {
 		return authCodes;
@@ -106,5 +115,22 @@ public class File {
 	public void setAuthCodes(User user, String auth_codes) {
 		authCodes.put(user, auth_codes);
 	}
+
+	public Timestamp getCreationTime() {
+		return cre_dat;
+	}
+
+	public Timestamp getModificationTime() {
+		return mod_dat;
+	}
+
+	public void setModificationTime(Timestamp mod_dat) {
+		this.mod_dat = mod_dat;
+	}
 	
+	public void updateModificationTime() {
+		this.mod_dat = new Timestamp(System.currentTimeMillis());
+	}
+	
+
 }

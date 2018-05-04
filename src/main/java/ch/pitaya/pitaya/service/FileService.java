@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -90,6 +88,7 @@ public class FileService {
 				throw new BadRequestException("File with that name already exists for this case");
 			} else {
 				file.setName(request.getName());
+				file.updateModificationTime();
 				notificationService.add(NotificationType.FILE_MODIFIED, file);
 			}
 		}
@@ -101,7 +100,7 @@ public class FileService {
 		response.addHeader("Content-Disposition", "attachment; filename=" + file.getName());
 		List<FileData> fileDataList = file.getFileData();
 		if (!fileDataList.isEmpty()) {
-			FileData mostRecentFileData = Collections.max(fileDataList, Comparator.comparingLong(FileData::getId));
+			FileData mostRecentFileData = fileDataList.get(0);
 			try {
 				IOUtils.copy(mostRecentFileData.getData().getBinaryStream(), response.getOutputStream());
 			} catch (IOException | SQLException e) {
@@ -117,6 +116,8 @@ public class FileService {
 		try {
 			FileData fileData = new FileData(file, createBlob(multipartFile.getInputStream(), multipartFile.getSize()));
 			fileData = fileDataRepository.save(fileData);
+			file.updateModificationTime();
+			fileRepository.save(file);
 			notificationService.add(NotificationType.FILE_VERSION_ADDED);
 		} catch (IOException e) {
 			throw new BadRequestException("Upload failed", e);
@@ -128,6 +129,8 @@ public class FileService {
 		List<FileData> fileDataList = file.getFileData();
 		System.out.println("List with files to delete: " + fileDataList.size());
 		fileDataRepository.deleteAll(fileDataList);
+		file.updateModificationTime();
+		fileRepository.save(file);
 		notificationService.add(NotificationType.FILE_DELETED);
 		System.out.println("Deleted");
 	}

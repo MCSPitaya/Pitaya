@@ -1,7 +1,9 @@
 package ch.pitaya.pitaya.model;
 
 import java.sql.Blob;
+import java.sql.Timestamp;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -21,6 +23,9 @@ public class FileData {
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	private File file;
 	
+	@Column(nullable = false, updatable = false)
+	private Timestamp cre_dat;
+	
 	@Lob
 	@NotNull
 	private Blob data;
@@ -32,6 +37,7 @@ public class FileData {
 	public FileData(File file, Blob blob) {
 		this.file = file;
 		this.data = blob;
+		this.cre_dat = new Timestamp(System.currentTimeMillis());
 	}
 
 	public Long getId() {
@@ -60,6 +66,10 @@ public class FileData {
 	
 	public int compare(FileData fd1, FileData fd2) {
 		return Long.compare(fd1.getId(), fd2.getId());
+	}
+	
+	public Timestamp getCreationTime() {
+		return cre_dat;
 	}
 
 }

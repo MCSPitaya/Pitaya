@@ -39,6 +39,8 @@ public class Firm {
 	@OneToMany(mappedBy = "firm")
 	@OrderBy("cre_dat DESC")
 	private List<Notification> notifications;
+	
+	
 
 	protected Firm() {
 		// JPA
