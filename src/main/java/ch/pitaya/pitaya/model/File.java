@@ -45,7 +45,7 @@ public class File {
 	@ElementCollection
 	@MapKeyJoinColumn(name = "user_id")
 	@Column(name = "auth_codes")
-	@CollectionTable(name = "case_auth_codes", joinColumns = @JoinColumn(name = "case_id"))
+	@CollectionTable(name = "file_auth_codes", joinColumns = @JoinColumn(name = "file_id"))
 	private Map<User, String> authCodes = new HashMap<>();
 
 	@NotEmpty

@@ -11,8 +11,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Inherited
 @Documented
-public @interface Authorize {
+public @interface AuthorizeFile {
 
 	AuthCode[] value();
+
+	String param() default "";
 
 }

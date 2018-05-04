@@ -1,5 +1,6 @@
 package ch.pitaya.pitaya.authorization;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Parameter;
 
 import org.aopalliance.intercept.MethodInterceptor;
@@ -20,24 +21,19 @@ public class MethodAuthorizationInterceptor implements MethodInterceptor {
 
 	@Override
 	public Object invoke(MethodInvocation invocation) throws Throwable {
-		Authorize annotation = invocation.getMethod().getAnnotation(Authorize.class);
-
-		AuthCode[] codes = annotation.value();
-		AuthType type = annotation.type();
-		String param = annotation.param();
-
-		switch (type) {
-		case USER:
-			auth.require(codes);
-			break;
-		case CASE:
-			doCaseAuth(invocation, codes, param);
-			break;
-		case FILE:
-			doFileAuth(invocation, codes, param);
-			break;
-		default:
-			throw new AppException("unsupported authorization type: " + type);
+		for (Annotation annotation2 : invocation.getMethod().getAnnotations()) {
+			if (annotation2.annotationType().isAssignableFrom(Authorize.class))
+				// @Authorize
+				auth.require(((Authorize) annotation2).value());
+			else if (annotation2.annotationType().isAssignableFrom(AuthorizeCase.class)) {
+				// @AuthorizeCase
+				AuthorizeCase annot = (AuthorizeCase) annotation2;
+				doCaseAuth(invocation, annot.value(), annot.param());
+			} else if (annotation2.annotationType().isAssignableFrom(AuthorizeFile.class)) {
+				// @AuthorizeFile
+				AuthorizeFile annot = (AuthorizeFile) annotation2;
+				doFileAuth(invocation, annot.value(), annot.param());
+			}
 		}
 
 		return invocation.proceed();

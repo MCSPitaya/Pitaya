@@ -8,6 +8,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,8 +26,10 @@ import ch.pitaya.pitaya.payload.request.CreateCaseRequest;
 import ch.pitaya.pitaya.payload.response.CaseDetails;
 import ch.pitaya.pitaya.payload.response.CaseSummary;
 import ch.pitaya.pitaya.payload.response.FileSummary;
+import ch.pitaya.pitaya.payload.response.SimpleResponse;
 import ch.pitaya.pitaya.repository.CaseRepository;
 import ch.pitaya.pitaya.security.SecurityFacade;
+import ch.pitaya.pitaya.service.CaseService;
 import ch.pitaya.pitaya.service.NotificationService;
 
 @RestController
@@ -41,6 +44,9 @@ public class CaseController {
 
 	@Autowired
 	private CaseRepository caseRepository;
+
+	@Autowired
+	private CaseService caseService;
 
 	@Autowired
 	private Authorization auth;
@@ -79,6 +85,17 @@ public class CaseController {
 		Optional<Case> case_ = caseRepository.findByIdAndFirm(id, firm);
 		if (case_.isPresent())
 			return case_.get().getFiles().stream().filter(f -> auth.test(f, AuthCode.FILE_READ)).map(FileSummary::new);
+		throw new ResourceNotFoundException("case", "id", id);
+	}
+
+	@PatchMapping("/{id}")
+	public Object patchCase(@PathVariable("id") Long id) {
+		Firm firm = securityFacade.getCurrentFirm();
+		Optional<Case> case_ = caseRepository.findByIdAndFirm(id, firm);
+		if (case_.isPresent()) {
+			caseService.patchCase(case_.get());
+			return SimpleResponse.ok("case updated");
+		}
 		throw new ResourceNotFoundException("case", "id", id);
 	}
 
