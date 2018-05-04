@@ -15,4 +15,8 @@ public @interface Authorize {
 
 	AuthCode[] value();
 
+	AuthType type() default AuthType.USER;
+	
+	String param() default "";
+
 }

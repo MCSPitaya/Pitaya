@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.pitaya.pitaya.exception.AuthorizationException;
+import ch.pitaya.pitaya.model.Case;
+import ch.pitaya.pitaya.model.File;
 import ch.pitaya.pitaya.model.User;
 import ch.pitaya.pitaya.security.SecurityFacade;
 
@@ -29,13 +31,40 @@ public class Authorization {
 	 */
 	public void require(AuthCode... authCodes) {
 		User user = securityFacade.getCurrentUser();
-		List<AuthCode> codes = resolver.decode(user.getAuthCodes());
+		test(authCodes, user.getAuthCodes());
+	}
 
-		for (AuthCode code : authCodes) {
-			if (!codes.contains(code)) {
-				throw new AuthorizationException(authCodes);
+	public void require(Case caze, AuthCode... authCodes) {
+		User user = securityFacade.getCurrentUser();
+		test(authCodes, caze.getAuthCodes(user), user.getAuthCodes());
+	}
+
+	public void require(File file, AuthCode... authCodes) {
+		User user = securityFacade.getCurrentUser();
+		test(authCodes, file.getAuthCodes(user), file.getCase().getAuthCodes(user), user.getAuthCodes());
+	}
+
+	private void test(AuthCode[] need, String... codes) {
+		for (String code : codes) {
+			List<AuthCode> list = resolver.decode(code);
+			if (list.isEmpty())
+				continue;
+			if (doTest(list, need))
+				return;
+			else
+				break;
+		}
+
+		throw new AuthorizationException(need);
+	}
+
+	private boolean doTest(List<AuthCode> have, AuthCode[] need) {
+		for (AuthCode code : need) {
+			if (!have.contains(code)) {
+				return false;
 			}
 		}
+		return true;
 	}
 
 }
