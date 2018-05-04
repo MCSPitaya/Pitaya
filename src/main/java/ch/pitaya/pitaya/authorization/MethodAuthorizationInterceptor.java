@@ -87,10 +87,14 @@ public class MethodAuthorizationInterceptor implements MethodInterceptor {
 	}
 
 	private int findUnnamed(Method method, Class<?> clazz) {
+		System.out.println(method);
+		System.out.println(clazz);
 		int index = -1;
 		for (int i = 0; i < method.getParameterTypes().length; i++) {
 			Class<?> clazz1 = method.getParameterTypes()[i];
-			if (clazz1.isAssignableFrom(clazz1)) {
+			System.out.println(clazz1);
+			if (clazz1.isAssignableFrom(clazz)) {
+				System.out.println("YES");
 				if (index == -1)
 					index = i;
 				else
