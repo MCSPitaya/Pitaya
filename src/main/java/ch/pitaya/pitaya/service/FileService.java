@@ -132,7 +132,7 @@ public class FileService {
 		fileDataRepository.deleteAll(fileDataList);
 		file.updateModification(user);
 		fileRepository.save(file);
-		notificationService.add(NotificationType.FILE_DELETED);
+		notificationService.add(NotificationType.FILE_DELETED, file);
 		System.out.println("Deleted");
 	}
 }
