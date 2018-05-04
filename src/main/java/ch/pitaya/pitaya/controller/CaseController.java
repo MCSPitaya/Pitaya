@@ -108,13 +108,18 @@ public class CaseController {
 		Optional<Case> case_ = caseRepository.findByIdAndFirm(id, firm);
 		if (case_.isPresent()) {
 			File file = new File(multipartFile.getOriginalFilename(), (case_.get()));
-			file = fileRepository.save(file);
-			try {
-				FileData fileData = new FileData(file, fileService.createBlob(multipartFile.getInputStream(), multipartFile.getSize()));
-				fileData = fileDataRepository.save(fileData);
-				return SimpleResponse.ok("Update successful");
-			} catch (IOException e) {
-				throw new BadRequestException("Upload failed", e);
+			Optional<File> file_ = fileRepository.findByNameAndTheCaseId(file.getName(), case_.get().getId());
+			if (file_.isPresent()) {
+				throw new BadRequestException("File with that name already exists for that case");
+			} else {
+				file = fileRepository.save(file);
+				try {
+					FileData fileData = new FileData(file, fileService.createBlob(multipartFile.getInputStream(), multipartFile.getSize()));
+					fileData = fileDataRepository.save(fileData);
+					return SimpleResponse.ok("Update successful");
+				} catch (IOException e) {
+					throw new BadRequestException("Upload failed", e);
+				}
 			}
 		}
 		throw new BadRequestException("Invalid case id");
