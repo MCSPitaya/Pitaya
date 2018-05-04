@@ -19,7 +19,7 @@ import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "files", uniqueConstraints = { //
-		@UniqueConstraint(columnNames = { "case_id", "name" }) })
+@UniqueConstraint(columnNames = { "case_id", "name" }) })
 public class File {
 
 	@Id
