@@ -1,4 +1,4 @@
-package ch.pitaya.pitaya.config;
+package ch.pitaya.pitaya.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,12 +15,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import ch.pitaya.pitaya.security.CustomUserDetailsService;
-import ch.pitaya.pitaya.security.JwtAuthenticationEntryPoint;
-import ch.pitaya.pitaya.security.JwtAuthenticationFilter;
-import ch.pitaya.pitaya.security.JwtTokenProvider;
-import ch.pitaya.pitaya.security.TokenProvider;
 
 @Configuration
 @EnableWebSecurity
