@@ -91,7 +91,7 @@ public class FileController {
 		throw new BadRequestException("Invalid file id");
 	}
 
-	@DeleteMapping("/{id}/content")
+	@DeleteMapping("/{id}")
 	@Authorize(AuthCode.FILE_EDIT)
 	public ResponseEntity<?> deleteFile(@PathVariable Long id) {
 		Optional<File> file_ = fileRepository.findById(id);
