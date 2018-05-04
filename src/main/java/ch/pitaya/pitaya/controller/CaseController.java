@@ -110,7 +110,7 @@ public class CaseController {
 			File file = new File(multipartFile.getOriginalFilename(), (case_.get()));
 			Optional<File> file_ = fileRepository.findByNameAndTheCaseId(file.getName(), case_.get().getId());
 			if (file_.isPresent()) {
-				throw new BadRequestException("File with that name already exists for that case");
+				throw new BadRequestException("File with that name already exists for this case");
 			} else {
 				file = fileRepository.save(file);
 				try {
