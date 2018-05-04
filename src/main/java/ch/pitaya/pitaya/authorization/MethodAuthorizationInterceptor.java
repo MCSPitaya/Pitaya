@@ -1,6 +1,7 @@
 package ch.pitaya.pitaya.authorization;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
 import org.aopalliance.intercept.MethodInterceptor;
@@ -49,43 +50,53 @@ public class MethodAuthorizationInterceptor implements MethodInterceptor {
 		auth.require(file, codes);
 	}
 
+	@SuppressWarnings("unchecked")
 	private <T> T findParam(MethodInvocation invocation, Class<T> clazz, String param) {
-		if (StringUtils.isEmpty(param))
-			return findUnnamed(invocation, clazz);
-		else
-			return findNamed(invocation, clazz, param);
+		int index = findIndex(invocation.getMethod(), clazz, param);
+		switch (index) {
+		case -1:
+			throw new AppException("could not find parameter '" + param + "' of type " + clazz.getName());
+		case -2:
+			throw new AppException("ambiguous: found multiple parameters of type " + clazz.getName());
+		case -3:
+			throw new AppException("parameter '" + param + "' is not of type " + clazz.getName());
+		default:
+			return (T) invocation.getArguments()[index];
+		}
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T> T findNamed(MethodInvocation invocation, Class<T> clazz, String param) {
-		Parameter[] parameters = invocation.getMethod().getParameters();
+	private int findIndex(Method method, Class<?> clazz, String param) {
+		if (StringUtils.isEmpty(param))
+			return findUnnamed(method, clazz);
+		return findNamed(method, clazz, param);
+	}
+
+	private int findNamed(Method method, Class<?> clazz, String param) {
+		Parameter[] parameters = method.getParameters();
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter parameter = parameters[i];
 			if (parameter.getName().equals(param)) {
 				if (parameter.getType().isAssignableFrom(clazz))
-					return (T) invocation.getArguments()[i];
+					return i;
 				else
-					throw new AppException("parameter with name '" + param + "' is not of type " + clazz.getName());
+					return -3; // TYPE ERROR
 			}
 		}
-		throw new AppException("could not find parameter '" + param + "' of type " + clazz.getName());
+		return -1; // NOT FOUND
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T> T findUnnamed(MethodInvocation invocation, Class<T> clazz) {
+	private int findUnnamed(Method method, Class<?> clazz) {
 		int index = -1;
-		for (int i = 0; i < invocation.getMethod().getParameterTypes().length; i++) {
-			Class<?> clazz1 = invocation.getMethod().getParameterTypes()[i];
+		for (int i = 0; i < method.getParameterTypes().length; i++) {
+			Class<?> clazz1 = method.getParameterTypes()[i];
 			if (clazz1.isAssignableFrom(clazz1)) {
 				if (index == -1)
 					index = i;
 				else
-					throw new AppException("ambiguous: multiple parameters exist for type " + clazz.getName());
+					return -2; // MULTIPLE MATCHES
 			}
 		}
-		if (index == -1)
-			throw new AppException("could not find parameter of type " + clazz);
-		return (T) invocation.getArguments()[index];
+		return index;
 	}
 
 }
