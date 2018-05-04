@@ -58,14 +58,14 @@ public class FileController {
 	}
 
 	@PatchMapping("/{id}")
-	public ResponseEntity<?> patchFileDetails(@RequestBody PatchFileDetailsRequest request) {
+	public ResponseEntity<?> patchFileDetails(@PathVariable("id") Long id, @RequestBody PatchFileDetailsRequest request) {
 		Firm firm = securityFacade.getCurrentFirm();
-		Optional<File> file_ = fileRepository.findByIdAndTheCaseFirm(request.getId(), firm);
+		Optional<File> file_ = fileRepository.findByIdAndTheCaseFirm(id, firm);
 		if (file_.isPresent()) {
 			fileService.patchFile(request, file_.get());
 			return SimpleResponse.ok("Update successful");
 		}
-		throw new ResourceNotFoundException("file", "id", request.getId());
+		throw new ResourceNotFoundException("file", "id", id);
 	}
 
 	@GetMapping("/{id}/content")
