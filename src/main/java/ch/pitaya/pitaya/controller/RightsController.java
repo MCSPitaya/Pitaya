@@ -1,18 +1,21 @@
 package ch.pitaya.pitaya.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.pitaya.pitaya.authorization.AuthCode;
 import ch.pitaya.pitaya.authorization.Authorization;
-import ch.pitaya.pitaya.authorization.Authorize;
 import ch.pitaya.pitaya.exception.ResourceNotFoundException;
 import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.model.User;
+import ch.pitaya.pitaya.payload.request.AuthCodeChangeRequest;
 import ch.pitaya.pitaya.payload.response.AuthCodeResponse;
+import ch.pitaya.pitaya.payload.response.SimpleResponse;
 import ch.pitaya.pitaya.repository.CaseRepository;
 import ch.pitaya.pitaya.repository.FileRepository;
 import ch.pitaya.pitaya.repository.UserRepository;
@@ -68,11 +71,10 @@ public class RightsController {
 	// #### ANOTHER GUY'S RIGTS
 
 	@GetMapping("/user/{id}/rights")
-	@Authorize(AuthCode.FIRM_READ_ROLES)
 	public AuthCodeResponse getUserAuthCodes(@PathVariable Long id) {
 		Firm firm = securityFacade.getCurrentFirm();
 		return userRepo.findByIdAndFirm(id, firm) //
-				.map(rightsService::getAuthCodes) //
+				.map(u -> rightsService.getAuthCodesSafe(u)) //
 				.orElseThrow(() -> new ResourceNotFoundException("user", "id", id));
 	}
 
@@ -91,6 +93,42 @@ public class RightsController {
 		return fileRepo.findByIdAndTheCaseFirm(fid, firm).map(f -> {
 			return userRepo.findByIdAndFirm(uid, firm).map(u -> rightsService.getAuthCodesSafe(u, f))
 					.orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
+		}).orElseThrow(() -> new ResourceNotFoundException("file", "id", fid));
+	}
+
+	// #### SET SOME DUDES RIGHTS ####
+
+	@PostMapping("/user/{id}/rights")
+	public ResponseEntity<?> setUserAuthCodes(@PathVariable Long id, AuthCodeChangeRequest r) {
+		Firm firm = securityFacade.getCurrentFirm();
+		return userRepo.findByIdAndFirm(id, firm) //
+				.map(u -> {
+					rightsService.setAuthCodesSafe(r, u);
+					return SimpleResponse.ok("update successful");
+				}).orElseThrow(() -> new ResourceNotFoundException("user", "id", id));
+	}
+
+	@PostMapping("/user/{uid}/rights/case/{cid}")
+	public ResponseEntity<?> getCaseAuthCodes(@PathVariable("uid") Long uid, @PathVariable("cid") Long cid,
+			AuthCodeChangeRequest r) {
+		Firm firm = securityFacade.getCurrentFirm();
+		return caseRepo.findByIdAndFirm(cid, firm).map(c -> {
+			return userRepo.findByIdAndFirm(uid, firm).map(u -> {
+				rightsService.setAuthCodesSafe(r, u, c);
+				return SimpleResponse.ok("update successful");
+			}).orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
+		}).orElseThrow(() -> new ResourceNotFoundException("case", "id", cid));
+	}
+
+	@GetMapping("/user/{uid}/rights/file/{fid}")
+	public ResponseEntity<?> getFileAuthCodes(@PathVariable("uid") Long uid, @PathVariable("fid") Long fid,
+			AuthCodeChangeRequest r) {
+		Firm firm = securityFacade.getCurrentFirm();
+		return fileRepo.findByIdAndTheCaseFirm(fid, firm).map(f -> {
+			return userRepo.findByIdAndFirm(uid, firm).map(u -> {
+				rightsService.setAuthCodesSafe(r, u, f);
+				return SimpleResponse.ok("update successful");
+			}).orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
 		}).orElseThrow(() -> new ResourceNotFoundException("file", "id", fid));
 	}
 

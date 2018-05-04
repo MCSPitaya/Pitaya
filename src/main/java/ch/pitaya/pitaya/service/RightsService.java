@@ -8,18 +8,30 @@ import org.springframework.stereotype.Service;
 
 import ch.pitaya.pitaya.authorization.AuthCode;
 import ch.pitaya.pitaya.authorization.AuthCodeResolver;
+import ch.pitaya.pitaya.authorization.Authorize;
 import ch.pitaya.pitaya.authorization.AuthorizeCase;
 import ch.pitaya.pitaya.authorization.AuthorizeFile;
 import ch.pitaya.pitaya.model.Case;
 import ch.pitaya.pitaya.model.File;
 import ch.pitaya.pitaya.model.User;
+import ch.pitaya.pitaya.payload.request.AuthCodeChangeRequest;
 import ch.pitaya.pitaya.payload.response.AuthCodeResponse;
+import ch.pitaya.pitaya.repository.CaseRepository;
+import ch.pitaya.pitaya.repository.FileRepository;
+import ch.pitaya.pitaya.repository.UserRepository;
 
 @Service
 public class RightsService {
-	
+
 	@Autowired
 	private AuthCodeResolver resolver;
+
+	@Autowired
+	private UserRepository userRepo;
+	@Autowired
+	private CaseRepository caseRepo;
+	@Autowired
+	private FileRepository fileRepo;
 
 	public AuthCodeResponse getAuthCodes(User user) {
 		HashMap<String, List<AuthCode>> ex = getAuthCodes(user, true);
@@ -75,6 +87,11 @@ public class RightsService {
 		return map;
 	}
 
+	@Authorize(AuthCode.FIRM_READ_ROLES)
+	public AuthCodeResponse getAuthCodesSafe(User u) {
+		return getAuthCodes(u);
+	}
+
 	@AuthorizeCase(AuthCode.CASE_READ_ROLES)
 	public AuthCodeResponse getAuthCodesSafe(User u, Case c) {
 		return getAuthCodes(u, c);
@@ -83,6 +100,24 @@ public class RightsService {
 	@AuthorizeFile(AuthCode.FILE_READ_ROLES)
 	public AuthCodeResponse getAuthCodesSafe(User u, File f) {
 		return getAuthCodes(u, f);
+	}
+
+	@Authorize(AuthCode.FIRM_CHANGE_ROLES)
+	public void setAuthCodesSafe(AuthCodeChangeRequest r, User u) {
+		u.setAuthCodes(r.codes);
+		userRepo.save(u);
+	}
+
+	@AuthorizeCase(AuthCode.CASE_CHANGE_ROLES)
+	public void setAuthCodesSafe(AuthCodeChangeRequest r, User u, Case c) {
+		c.setAuthCodes(u, r.codes);
+		caseRepo.save(c);
+	}
+
+	@AuthorizeFile(AuthCode.FILE_CHANGE_ROLES)
+	public void setAuthCodesSafe(AuthCodeChangeRequest r, User u, File f) {
+		f.setAuthCodes(u, r.codes);
+		fileRepo.save(f);
 	}
 
 }
