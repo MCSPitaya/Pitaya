@@ -30,32 +30,43 @@ public class Authorization {
 	 *             at least one auth code is missing
 	 */
 	public void require(AuthCode... authCodes) {
-		User user = securityFacade.getCurrentUser();
-		test(authCodes, user.getAuthCodes());
+		if (!test(authCodes))
+			throw new AuthorizationException(authCodes);
 	}
 
 	public void require(Case caze, AuthCode... authCodes) {
-		User user = securityFacade.getCurrentUser();
-		test(authCodes, caze.getAuthCodes(user), user.getAuthCodes());
+		if (!test(caze, authCodes))
+			throw new AuthorizationException(authCodes);
 	}
 
 	public void require(File file, AuthCode... authCodes) {
-		User user = securityFacade.getCurrentUser();
-		test(authCodes, file.getAuthCodes(user), file.getCase().getAuthCodes(user), user.getAuthCodes());
+		if (!test(file, authCodes))
+			throw new AuthorizationException(authCodes);
 	}
 
-	private void test(AuthCode[] need, String... codes) {
+	public boolean test(AuthCode... authCodes) {
+		User user = securityFacade.getCurrentUser();
+		return test(authCodes, user.getAuthCodes());
+	}
+
+	public boolean test(Case caze, AuthCode... authCodes) {
+		User user = securityFacade.getCurrentUser();
+		return test(authCodes, caze.getAuthCodes(user), user.getAuthCodes());
+	}
+
+	public boolean test(File file, AuthCode... authCodes) {
+		User user = securityFacade.getCurrentUser();
+		return test(authCodes, file.getAuthCodes(user), file.getCase().getAuthCodes(user), user.getAuthCodes());
+	}
+
+	private boolean test(AuthCode[] need, String... codes) {
 		for (String code : codes) {
 			List<AuthCode> list = resolver.decode(code);
 			if (list.isEmpty())
 				continue;
-			if (doTest(list, need))
-				return;
-			else
-				break;
+			return doTest(list, need);
 		}
-
-		throw new AuthorizationException(need);
+		return false;
 	}
 
 	private boolean doTest(List<AuthCode> have, AuthCode[] need) {
