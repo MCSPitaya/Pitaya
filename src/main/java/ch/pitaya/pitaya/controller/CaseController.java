@@ -1,7 +1,6 @@
 package ch.pitaya.pitaya.controller;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -39,8 +38,8 @@ import ch.pitaya.pitaya.repository.CaseRepository;
 import ch.pitaya.pitaya.repository.FileDataRepository;
 import ch.pitaya.pitaya.repository.FileRepository;
 import ch.pitaya.pitaya.security.SecurityFacade;
-import ch.pitaya.pitaya.service.FileService;
 import ch.pitaya.pitaya.service.CaseService;
+import ch.pitaya.pitaya.service.FileService;
 import ch.pitaya.pitaya.service.NotificationService;
 
 @RestController
@@ -120,7 +119,7 @@ public class CaseController {
 	}
 	
 	@PostMapping("/{id}/file")
-	@Authorize(AuthCode.FILE_CREATE)
+	@Authorize(AuthCode.CASE_FILE_CREATE)
 	public ResponseEntity<?> addFile(@PathVariable Long id, @RequestPart("file") MultipartFile multipartFile) {
 		Firm firm = securityFacade.getCurrentFirm();
 		Optional<Case> case_ = caseRepository.findByIdAndFirm(id, firm);
