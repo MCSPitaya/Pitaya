@@ -57,5 +57,9 @@ public class FileData {
 	public void setData(Blob data) {
 		this.data = data;
 	}
+	
+	public int compare(FileData fd1, FileData fd2) {
+		return Long.compare(fd1.getId(), fd2.getId());
+	}
 
 }

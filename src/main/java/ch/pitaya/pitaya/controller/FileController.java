@@ -2,6 +2,9 @@ package ch.pitaya.pitaya.controller;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletResponse;
@@ -73,10 +76,11 @@ public class FileController {
 		Optional<File> file_ = fileRepository.findById(id);
 		if (file_.isPresent()) {
 			response.addHeader("Content-Disposition", "attachment; filename=" + file_.get().getName());
-			Optional<FileData> fileData_ = fileDataRepository.findByFile(file_.get());
-			if (fileData_.isPresent()) {
+			List<FileData> fileDataList = file_.get().getFileData();
+			if (!fileDataList.isEmpty()) {
+				FileData mostRecentFileData = Collections.max(fileDataList, Comparator.comparingLong(FileData::getId));
 				try {
-					IOUtils.copy(fileData_.get().getData().getBinaryStream(), response.getOutputStream());
+					IOUtils.copy(mostRecentFileData.getData().getBinaryStream(), response.getOutputStream());
 				} catch (IOException | SQLException e) {
 					throw new BadRequestException("Download failed", e);
 				}
