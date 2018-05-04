@@ -1,17 +1,10 @@
 package ch.pitaya.pitaya.model;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 
 @Entity
@@ -41,6 +34,12 @@ public class Case {
 	@OneToMany(mappedBy = "theCase")
 	@OrderBy("cre_dat DESC")
 	private List<Notification> notifications;
+
+	@ElementCollection
+	@MapKeyJoinColumn(name = "user_id")
+	@Column(name = "auth_codes")
+	@CollectionTable(name = "case_auth_codes", joinColumns = @JoinColumn(name = "case_id"))
+	private Map<User, String> authCodes = new HashMap<>();
 
 	protected Case() {
 		// JPA
@@ -99,6 +98,18 @@ public class Case {
 
 	public List<Notification> getNotifications() {
 		return notifications;
+	}
+
+	public Map<User, String> getAuthCodes() {
+		return authCodes;
+	}
+
+	public String getAuthCodes(User user) {
+		return authCodes.get(user);
+	}
+
+	public void setAuthCodes(User user, String auth_codes) {
+		authCodes.put(user, auth_codes);
 	}
 
 }
