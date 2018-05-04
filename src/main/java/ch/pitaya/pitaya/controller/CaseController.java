@@ -1,11 +1,14 @@
 package ch.pitaya.pitaya.controller;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -13,13 +16,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import ch.pitaya.pitaya.authorization.AuthCode;
 import ch.pitaya.pitaya.authorization.Authorization;
 import ch.pitaya.pitaya.authorization.Authorize;
+import ch.pitaya.pitaya.exception.BadRequestException;
 import ch.pitaya.pitaya.exception.ResourceNotFoundException;
 import ch.pitaya.pitaya.model.Case;
+import ch.pitaya.pitaya.model.File;
+import ch.pitaya.pitaya.model.FileData;
 import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.model.NotificationType;
 import ch.pitaya.pitaya.payload.request.CreateCaseRequest;
@@ -28,7 +36,10 @@ import ch.pitaya.pitaya.payload.response.CaseSummary;
 import ch.pitaya.pitaya.payload.response.FileSummary;
 import ch.pitaya.pitaya.payload.response.SimpleResponse;
 import ch.pitaya.pitaya.repository.CaseRepository;
+import ch.pitaya.pitaya.repository.FileDataRepository;
+import ch.pitaya.pitaya.repository.FileRepository;
 import ch.pitaya.pitaya.security.SecurityFacade;
+import ch.pitaya.pitaya.service.FileService;
 import ch.pitaya.pitaya.service.CaseService;
 import ch.pitaya.pitaya.service.NotificationService;
 
@@ -44,6 +55,15 @@ public class CaseController {
 
 	@Autowired
 	private CaseRepository caseRepository;
+	
+	@Autowired
+	private FileRepository fileRepository;
+	
+	@Autowired
+	private FileService fileService;
+	
+	@Autowired
+	private FileDataRepository fileDataRepository;
 
 	@Autowired
 	private CaseService caseService;
@@ -97,6 +117,30 @@ public class CaseController {
 			return SimpleResponse.ok("case updated");
 		}
 		throw new ResourceNotFoundException("case", "id", id);
+	}
+	
+	@PostMapping("/{id}/file")
+	@Authorize(AuthCode.FILE_CREATE)
+	public ResponseEntity<?> addFile(@PathVariable Long id, @RequestPart("file") MultipartFile multipartFile) {
+		Firm firm = securityFacade.getCurrentFirm();
+		Optional<Case> case_ = caseRepository.findByIdAndFirm(id, firm);
+		if (case_.isPresent()) {
+			File file = new File(multipartFile.getOriginalFilename(), (case_.get()));
+			Optional<File> file_ = fileRepository.findByNameAndTheCaseId(file.getName(), case_.get().getId());
+			if (file_.isPresent()) {
+				throw new BadRequestException("File with that name already exists for this case");
+			} else {
+				file = fileRepository.save(file);
+				try {
+					FileData fileData = new FileData(file, fileService.createBlob(multipartFile.getInputStream(), multipartFile.getSize()));
+					fileData = fileDataRepository.save(fileData);
+					return SimpleResponse.ok("Update successful");
+				} catch (IOException e) {
+					throw new BadRequestException("Upload failed", e);
+				}
+			}
+		}
+		throw new BadRequestException("Case does not exist");
 	}
 
 }
