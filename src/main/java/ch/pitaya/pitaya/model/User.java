@@ -58,8 +58,6 @@ public class User {
 	@OrderBy("cre_dat DESC")
 	private List<Notification> notifications;
 
-	@NotBlank
-	@Column(nullable = false)
 	private String authCodes;
 
 	private boolean active;
@@ -156,7 +154,7 @@ public class User {
 	public boolean isTechUser() {
 		return techUser;
 	}
-	
+
 	public void setTechUser(boolean techUser) {
 		this.techUser = techUser;
 	}

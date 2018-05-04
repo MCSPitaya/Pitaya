@@ -69,7 +69,7 @@ public class CaseController {
 
 	@PostMapping
 	@Transactional
-	@Authorize(AuthCode.CASE_CREATE)
+	@Authorize(AuthCode.FIRM_CASE_CREATE)
 	public CaseDetails createCase(@Valid @RequestBody CreateCaseRequest request) {
 		Firm firm = securityFacade.getCurrentFirm();
 		Case case_ = caseRepository
