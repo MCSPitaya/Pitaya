@@ -65,6 +65,7 @@ public class MethodAuthorizationInterceptor implements MethodInterceptor {
 		}
 	}
 
+	// TODO: caching
 	private int findIndex(Method method, Class<?> clazz, String param) {
 		if (StringUtils.isEmpty(param))
 			return findUnnamed(method, clazz);

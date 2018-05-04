@@ -29,16 +29,22 @@ public class AuthCodeResolver {
 
 	}
 
+	// TODO: caching
 	public List<AuthCode> decode(String _user, String _case, String _file) {
 		List<AuthCode> codes = decode(_user);
 		if (_case != null) {
 			codes.removeAll(caseCodes);
 			codes.removeAll(fileCodes);
-			codes.addAll(decode(_case));
+			List<AuthCode> c = decode(_case);
+			c.removeAll(userCodes);
+			codes.addAll(c);
 		}
 		if (_file != null) {
 			codes.removeAll(fileCodes);
-			codes.addAll(decode(_file));
+			List<AuthCode> c = decode(_file);
+			c.removeAll(userCodes);
+			c.removeAll(caseCodes);
+			codes.addAll(c);
 		}
 		return codes;
 	}
