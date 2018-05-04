@@ -10,6 +10,7 @@ public class FileDetails {
 	private String name;
 	private int revisions;
 	private Timestamp created, modified;
+	private UserSummary createdBy, modifiedBy;
 
 	public FileDetails(File f) {
 		this.id = f.getId();
@@ -17,6 +18,8 @@ public class FileDetails {
 		this.revisions = f.getFileData().size();
 		created = f.getCreationTime();
 		modified = f.getModificationTime();
+		this.createdBy = new UserSummary(f.getCreationUser());
+		this.modifiedBy = new UserSummary(f.getModificationUser());
 	}
 
 	public Long getId() {
@@ -37,6 +40,14 @@ public class FileDetails {
 
 	public Timestamp getModified() {
 		return modified;
+	}
+	
+	public UserSummary getCreatedBy() {
+		return createdBy;
+	}
+	
+	public UserSummary getModifiedBy() {
+		return modifiedBy;
 	}
 
 }

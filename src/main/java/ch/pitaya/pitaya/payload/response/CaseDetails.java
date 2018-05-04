@@ -11,6 +11,7 @@ public class CaseDetails {
 	private String title;
 	private String description;
 	private Timestamp created, modified;
+	private UserSummary createdBy, modifiedBy;
 
 	public CaseDetails(Case c) {
 		this.id = c.getId();
@@ -19,6 +20,8 @@ public class CaseDetails {
 		this.description = c.getDescription();
 		this.created = c.getCreationTime();
 		this.modified = c.getModificationTime();
+		this.createdBy = new UserSummary(c.getCreationUser());
+		this.modifiedBy = new UserSummary(c.getModificationUser());
 	}
 
 	public Long getId() {
@@ -43,6 +46,14 @@ public class CaseDetails {
 
 	public Timestamp getModified() {
 		return modified;
+	}
+
+	public UserSummary getCreatedBy() {
+		return createdBy;
+	}
+
+	public UserSummary getModifiedBy() {
+		return modifiedBy;
 	}
 
 }
