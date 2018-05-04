@@ -17,10 +17,13 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import ch.pitaya.pitaya.repository.FileDataRepository;
 import ch.pitaya.pitaya.repository.FileRepository;
+import ch.pitaya.pitaya.service.FileService;
 import ch.pitaya.pitaya.authorization.AuthCode;
 import ch.pitaya.pitaya.authorization.Authorize;
 import ch.pitaya.pitaya.exception.BadRequestException;
@@ -40,6 +43,9 @@ public class FileController {
 	
 	@Autowired
 	private FileDataRepository fileDataRepository;
+	
+	@Autowired
+	private FileService fileService;
 	
 	@GetMapping("/{id}")
 	@Authorize(AuthCode.FILE_READ)
@@ -90,6 +96,22 @@ public class FileController {
 		} else {
 			throw new ResourceNotFoundException("file", "id", id);
 		}
+	}
+	
+	@PatchMapping("/{id}/content")
+	@Authorize(AuthCode.FILE_EDIT)
+	public ResponseEntity<?> editFile(@PathVariable Long id, @RequestPart("file") MultipartFile multipartFile) {
+		Optional<File> file_ = fileRepository.findById(id);
+		if (file_.isPresent()) {
+			try {
+				FileData fileData = new FileData(file_.get(), fileService.createBlob(multipartFile.getInputStream(), multipartFile.getSize()));
+				fileData = fileDataRepository.save(fileData);
+				return SimpleResponse.ok("Update successful");
+			} catch (IOException e) {
+				throw new BadRequestException("Upload failed", e);
+			}
+		}
+		throw new BadRequestException("Invalid file id");
 	}
 
 }

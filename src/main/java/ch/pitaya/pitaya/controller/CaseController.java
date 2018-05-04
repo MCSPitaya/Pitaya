@@ -122,7 +122,7 @@ public class CaseController {
 				}
 			}
 		}
-		throw new BadRequestException("Invalid case id");
+		throw new BadRequestException("Case does not exist");
 	}
 
 }
