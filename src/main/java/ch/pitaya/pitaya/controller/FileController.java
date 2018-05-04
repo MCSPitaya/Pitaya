@@ -23,6 +23,7 @@ import ch.pitaya.pitaya.exception.BadRequestException;
 import ch.pitaya.pitaya.exception.ResourceNotFoundException;
 import ch.pitaya.pitaya.model.File;
 import ch.pitaya.pitaya.model.Firm;
+import ch.pitaya.pitaya.model.User;
 import ch.pitaya.pitaya.payload.request.PatchFileDetailsRequest;
 import ch.pitaya.pitaya.payload.response.FileDetails;
 import ch.pitaya.pitaya.payload.response.SimpleResponse;
@@ -59,10 +60,11 @@ public class FileController {
 
 	@PatchMapping("/{id}")
 	public ResponseEntity<?> patchFileDetails(@PathVariable("id") Long id, @RequestBody PatchFileDetailsRequest request) {
-		Firm firm = securityFacade.getCurrentFirm();
+		User user = securityFacade.getCurrentUser();
+		Firm firm = user.getFirm();
 		Optional<File> file_ = fileRepository.findByIdAndTheCaseFirm(id, firm);
 		if (file_.isPresent()) {
-			fileService.patchFile(request, file_.get());
+			fileService.patchFile(request, file_.get(), user);
 			return SimpleResponse.ok("Update successful");
 		}
 		throw new ResourceNotFoundException("file", "id", id);
@@ -82,10 +84,11 @@ public class FileController {
 	@PatchMapping("/{id}/content")
 	@Authorize(AuthCode.FILE_EDIT)
 	public ResponseEntity<?> editFile(@PathVariable Long id, @RequestPart("file") MultipartFile multipartFile) {
+		User user = securityFacade.getCurrentUser();
 		Optional<File> file_ = fileRepository.findById(id);
 		if (file_.isPresent()) {
 			File file = file_.get();
-			fileService.addFileRevision(file, multipartFile);
+			fileService.addFileRevision(file, multipartFile, user);
 			return SimpleResponse.ok("Update successful");
 		}
 		throw new BadRequestException("Invalid file id");
@@ -94,10 +97,11 @@ public class FileController {
 	@DeleteMapping("/{id}")
 	@Authorize(AuthCode.FILE_EDIT)
 	public ResponseEntity<?> deleteFile(@PathVariable Long id) {
+		User user = securityFacade.getCurrentUser();
 		Optional<File> file_ = fileRepository.findById(id);
 		if (file_.isPresent()) {
 			File file = file_.get();
-			fileService.deleteFile(file);
+			fileService.deleteFile(file, user);
 			return SimpleResponse.ok("Deletion successful");
 		}
 		throw new BadRequestException("Invalid file id");

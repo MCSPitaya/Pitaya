@@ -25,6 +25,7 @@ import ch.pitaya.pitaya.exception.ResourceNotFoundException;
 import ch.pitaya.pitaya.model.Case;
 import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.model.NotificationType;
+import ch.pitaya.pitaya.model.User;
 import ch.pitaya.pitaya.payload.request.CreateCaseRequest;
 import ch.pitaya.pitaya.payload.response.CaseDetails;
 import ch.pitaya.pitaya.payload.response.CaseSummary;
@@ -78,9 +79,10 @@ public class CaseController {
 	@Transactional
 	@Authorize(AuthCode.FIRM_CASE_CREATE)
 	public CaseDetails createCase(@Valid @RequestBody CreateCaseRequest request) {
-		Firm firm = securityFacade.getCurrentFirm();
+		User user = securityFacade.getCurrentUser();
+		Firm firm = user.getFirm();
 		Case case_ = caseRepository
-				.save(new Case(firm, request.getNumber(), request.getTitle(), request.getDescription()));
+				.save(new Case(firm, request.getNumber(), request.getTitle(), request.getDescription(), user));
 		notificationService.add(NotificationType.CASE_CREATED, case_);
 		return new CaseDetails(case_);
 	}
@@ -108,10 +110,11 @@ public class CaseController {
 
 	@PostMapping("/{id}/file")
 	public ResponseEntity<?> addFile(@PathVariable Long id, @RequestPart("file") MultipartFile multipartFile) {
-		Firm firm = securityFacade.getCurrentFirm();
+		User user = securityFacade.getCurrentUser();
+		Firm firm = user.getFirm();
 		Optional<Case> case_ = caseRepository.findByIdAndFirm(id, firm);
 		if (case_.isPresent()) {
-			fileService.addFile(case_.get(), multipartFile);
+			fileService.addFile(case_.get(), multipartFile, user);
 			return SimpleResponse.ok("Update successful");
 		}
 		throw new ResourceNotFoundException("case", "id", id);

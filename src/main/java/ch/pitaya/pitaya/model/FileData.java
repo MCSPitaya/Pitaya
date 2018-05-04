@@ -9,6 +9,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
@@ -26,6 +27,10 @@ public class FileData {
 	@Column(nullable = false, updatable = false)
 	private Timestamp cre_dat;
 	
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@JoinColumn(name = "cre_uid", nullable = false, updatable = false)
+	private User cre_user;
+	
 	@Lob
 	@NotNull
 	private Blob data;
@@ -34,10 +39,11 @@ public class FileData {
 		// JPA
 	}
 
-	public FileData(File file, Blob blob) {
+	public FileData(File file, Blob blob, User user) {
 		this.file = file;
 		this.data = blob;
 		this.cre_dat = new Timestamp(System.currentTimeMillis());
+		this.cre_user = user;
 	}
 
 	public Long getId() {
@@ -72,4 +78,8 @@ public class FileData {
 		return cre_dat;
 	}
 
+	public User getCreationUser() {
+		return cre_user;
+	}
+	
 }

@@ -47,18 +47,29 @@ public class Case {
 
 	@Column(nullable = false, updatable = false)
 	private Timestamp mod_dat;
+	
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@JoinColumn(name = "cre_uid", nullable = false, updatable = false)
+	private User cre_user;
+
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@JoinColumn(name = "mod_uid", nullable = false, updatable = true)
+	private User mod_user;
+
 
 	protected Case() {
 		// JPA
 	}
 
-	public Case(Firm firm, String caseNumber, String title, String description) {
+	public Case(Firm firm, String caseNumber, String title, String description, User user) {
 		this.caseNumber = caseNumber;
 		this.title = title;
 		this.description = description;
 		this.firm = firm;
 		this.cre_dat = new Timestamp(System.currentTimeMillis());
 		this.mod_dat = this.cre_dat;
+		cre_user = user;
+		mod_user = user;
 	}
 
 	public void setCaseNumber(String caseNumber) {
@@ -133,8 +144,21 @@ public class Case {
 		this.mod_dat = mod_dat;
 	}
 	
-	public void updateModificationTime() {
+	public void setMod_user(User mod_user) {
+		this.mod_user = mod_user;
+	}
+	
+	public void updateModification(User user) {
 		this.mod_dat = new Timestamp(System.currentTimeMillis());
+		this.mod_user = user;
+	}
+
+	public User getCreationUser() {
+		return cre_user;
+	}
+
+	public User getModificationUser() {
+		return mod_user;
 	}
 
 }

@@ -25,6 +25,7 @@ import ch.pitaya.pitaya.model.Case;
 import ch.pitaya.pitaya.model.File;
 import ch.pitaya.pitaya.model.FileData;
 import ch.pitaya.pitaya.model.NotificationType;
+import ch.pitaya.pitaya.model.User;
 import ch.pitaya.pitaya.payload.request.PatchFileDetailsRequest;
 import ch.pitaya.pitaya.repository.FileDataRepository;
 import ch.pitaya.pitaya.repository.FileRepository;
@@ -62,8 +63,8 @@ public class FileService {
 	}
 
 	@AuthorizeCase(AuthCode.CASE_CREATE_FILE)
-	public void addFile(Case caze, MultipartFile multipartFile) {
-		File file = new File(multipartFile.getOriginalFilename(), (caze));
+	public void addFile(Case caze, MultipartFile multipartFile, User user) {
+		File file = new File(multipartFile.getOriginalFilename(), caze, user);
 		Optional<File> file_ = fileRepository.findByNameAndTheCaseId(file.getName(), caze.getId());
 		if (file_.isPresent()) {
 			throw new BadRequestException("File with that name already exists for this case");
@@ -71,7 +72,7 @@ public class FileService {
 			file = fileRepository.save(file);
 			try {
 				FileData fileData = new FileData(file,
-						createBlob(multipartFile.getInputStream(), multipartFile.getSize()));
+						createBlob(multipartFile.getInputStream(), multipartFile.getSize()), user);
 				fileData = fileDataRepository.save(fileData);
 				notificationService.add(NotificationType.FILE_CREATED, file);
 			} catch (IOException e) {
@@ -81,14 +82,14 @@ public class FileService {
 	}
 
 	@AuthorizeFile(AuthCode.FILE_EDIT)
-	public void patchFile(PatchFileDetailsRequest request, File file) {
+	public void patchFile(PatchFileDetailsRequest request, File file, User user) {
 		if (request.getName() != null) {
 			Optional<File> file__ = fileRepository.findByNameAndTheCaseId(request.getName(), file.getCase().getId());
 			if (file__.isPresent()) {
 				throw new BadRequestException("File with that name already exists for this case");
 			} else {
 				file.setName(request.getName());
-				file.updateModificationTime();
+				file.updateModification(user);
 				notificationService.add(NotificationType.FILE_MODIFIED, file);
 			}
 		}
@@ -112,11 +113,11 @@ public class FileService {
 	}
 
 	@AuthorizeFile(AuthCode.FILE_UPDATE)
-	public void addFileRevision(File file, MultipartFile multipartFile) {
+	public void addFileRevision(File file, MultipartFile multipartFile, User user) {
 		try {
-			FileData fileData = new FileData(file, createBlob(multipartFile.getInputStream(), multipartFile.getSize()));
+			FileData fileData = new FileData(file, createBlob(multipartFile.getInputStream(), multipartFile.getSize()), user);
 			fileData = fileDataRepository.save(fileData);
-			file.updateModificationTime();
+			file.updateModification(user);
 			fileRepository.save(file);
 			notificationService.add(NotificationType.FILE_VERSION_ADDED);
 		} catch (IOException e) {
@@ -125,11 +126,11 @@ public class FileService {
 	}
 	
 	@AuthorizeFile(AuthCode.FILE_DELETE)
-	public void deleteFile(File file) {
+	public void deleteFile(File file, User user) {
 		List<FileData> fileDataList = file.getFileData();
 		System.out.println("List with files to delete: " + fileDataList.size());
 		fileDataRepository.deleteAll(fileDataList);
-		file.updateModificationTime();
+		file.updateModification(user);
 		fileRepository.save(file);
 		notificationService.add(NotificationType.FILE_DELETED);
 		System.out.println("Deleted");

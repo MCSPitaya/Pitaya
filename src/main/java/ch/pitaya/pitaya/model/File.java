@@ -61,15 +61,25 @@ public class File {
 	@Column(nullable = false, updatable = false)
 	private Timestamp mod_dat;
 
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@JoinColumn(name = "cre_uid", nullable = false, updatable = false)
+	private User cre_user;
+
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@JoinColumn(name = "mod_uid", nullable = false, updatable = true)
+	private User mod_user;
+
 	protected File() {
 		// JPA
 	}
 
-	public File(String name, Case theCase) {
+	public File(String name, Case theCase, User user) {
 		this.theCase = theCase;
 		this.name = name;
 		this.cre_dat = new Timestamp(System.currentTimeMillis());
 		this.mod_dat = this.cre_dat;
+		cre_user = user;
+		mod_user = user;
 	}
 
 	public Long getId() {
@@ -128,9 +138,21 @@ public class File {
 		this.mod_dat = mod_dat;
 	}
 	
-	public void updateModificationTime() {
-		this.mod_dat = new Timestamp(System.currentTimeMillis());
+	public void setMod_user(User mod_user) {
+		this.mod_user = mod_user;
 	}
 	
+	public void updateModification(User user) {
+		this.mod_dat = new Timestamp(System.currentTimeMillis());
+		this.mod_user = user;
+	}
+
+	public User getCreationUser() {
+		return cre_user;
+	}
+
+	public User getModificationUser() {
+		return mod_user;
+	}
 
 }
