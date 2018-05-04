@@ -15,7 +15,9 @@ public class AuthorizationAdvisor implements PointcutAdvisor {
 	private final StaticMethodMatcherPointcut pointcut = new StaticMethodMatcherPointcut() {
 		@Override
 		public boolean matches(Method method, Class<?> targetClass) {
-			return method.isAnnotationPresent(Authorize.class);
+			return method.isAnnotationPresent(Authorize.class) //
+					|| method.isAnnotationPresent(AuthorizeCase.class)
+					|| method.isAnnotationPresent(AuthorizeFile.class);
 		}
 	};
 
