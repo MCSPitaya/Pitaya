@@ -34,6 +34,16 @@ public class Court {
 		// JPA
 	}
 	
+	public Court(String name, String street, String number, String city, String zipCode, String telNumber, String email) {
+		this.name = name;
+		this.street = street;
+		this.number = number;
+		this.city = city;
+		this.zipCode = zipCode;
+		this.telNumber = telNumber;
+		this.email = email;
+	}
+	
 	public Long getId() {
 		return id;
 	}
