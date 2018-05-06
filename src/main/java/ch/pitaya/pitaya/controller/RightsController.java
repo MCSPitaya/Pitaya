@@ -3,13 +3,14 @@ package ch.pitaya.pitaya.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.pitaya.pitaya.authorization.AuthCode;
 import ch.pitaya.pitaya.authorization.Authorization;
+import ch.pitaya.pitaya.exception.BadRequestException;
 import ch.pitaya.pitaya.exception.ResourceNotFoundException;
 import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.model.User;
@@ -98,20 +99,25 @@ public class RightsController {
 
 	// #### SET SOME DUDES RIGHTS ####
 
-	@PostMapping("/user/{id}/rights")
-	public ResponseEntity<?> setUserAuthCodes(@PathVariable Long id, AuthCodeChangeRequest r) {
-		Firm firm = securityFacade.getCurrentFirm();
-		return userRepo.findByIdAndFirm(id, firm) //
+	@PatchMapping("/user/{uid}/rights")
+	public ResponseEntity<?> setUserAuthCodes(@PathVariable long uid, AuthCodeChangeRequest r) {
+		User user = securityFacade.getCurrentUser();
+		if (uid == user.getId())
+			throw new BadRequestException("cannot modify your own rights!");
+		return userRepo.findByIdAndFirm(uid, user.getFirm()) //
 				.map(u -> {
 					rightsService.setAuthCodesSafe(r, u);
 					return SimpleResponse.ok("update successful");
-				}).orElseThrow(() -> new ResourceNotFoundException("user", "id", id));
+				}).orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
 	}
 
-	@PostMapping("/user/{uid}/rights/case/{cid}")
-	public ResponseEntity<?> getCaseAuthCodes(@PathVariable("uid") Long uid, @PathVariable("cid") Long cid,
+	@PatchMapping("/user/{uid}/rights/case/{cid}")
+	public ResponseEntity<?> getCaseAuthCodes(@PathVariable("uid") long uid, @PathVariable("cid") Long cid,
 			AuthCodeChangeRequest r) {
-		Firm firm = securityFacade.getCurrentFirm();
+		User user = securityFacade.getCurrentUser();
+		if (uid == user.getId())
+			throw new BadRequestException("cannot modify your own rights!");
+		Firm firm = user.getFirm();
 		return caseRepo.findByIdAndFirm(cid, firm).map(c -> {
 			return userRepo.findByIdAndFirm(uid, firm).map(u -> {
 				rightsService.setAuthCodesSafe(r, u, c);
@@ -120,10 +126,13 @@ public class RightsController {
 		}).orElseThrow(() -> new ResourceNotFoundException("case", "id", cid));
 	}
 
-	@PostMapping("/user/{uid}/rights/file/{fid}")
-	public ResponseEntity<?> getFileAuthCodes(@PathVariable("uid") Long uid, @PathVariable("fid") Long fid,
+	@PatchMapping("/user/{uid}/rights/file/{fid}")
+	public ResponseEntity<?> getFileAuthCodes(@PathVariable("uid") long uid, @PathVariable("fid") Long fid,
 			AuthCodeChangeRequest r) {
-		Firm firm = securityFacade.getCurrentFirm();
+		User user = securityFacade.getCurrentUser();
+		if (uid == user.getId())
+			throw new BadRequestException("cannot modify your own rights!");
+		Firm firm = user.getFirm();
 		return fileRepo.findByIdAndTheCaseFirm(fid, firm).map(f -> {
 			return userRepo.findByIdAndFirm(uid, firm).map(u -> {
 				rightsService.setAuthCodesSafe(r, u, f);
