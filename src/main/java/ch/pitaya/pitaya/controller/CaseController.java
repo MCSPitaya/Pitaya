@@ -60,7 +60,6 @@ public class CaseController {
 	private Authorization auth;
 
 	@GetMapping
-	@Authorize(AuthCode.CASE_READ)
 	public Stream<CaseSummary> getCaseList() {
 		Firm firm = securityFacade.getCurrentFirm();
 		return firm.getCases().stream().filter(c -> auth.test(c, AuthCode.CASE_READ)).map(CaseSummary::new);
@@ -88,13 +87,10 @@ public class CaseController {
 	}
 
 	@GetMapping("/{id}/files")
-	@Authorize(AuthCode.CASE_READ_FILES)
 	public Stream<FileSummary> getFileList(@PathVariable Long id) {
 		Firm firm = securityFacade.getCurrentFirm();
-		Optional<Case> case_ = caseRepository.findByIdAndFirm(id, firm);
-		if (case_.isPresent())
-			return case_.get().getFiles().stream().filter(f -> auth.test(f, AuthCode.FILE_READ)).map(FileSummary::new);
-		throw new ResourceNotFoundException("case", "id", id);
+		return caseRepository.findByIdAndFirm(id, firm).map(caseService::getFileList)
+				.orElseThrow(() -> new ResourceNotFoundException("case", "id", id));
 	}
 
 	@PatchMapping("/{id}")
