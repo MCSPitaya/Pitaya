@@ -4,14 +4,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ch.pitaya.pitaya.payload.response.ApiResponse;
+import ch.pitaya.pitaya.payload.response.SimpleResponse;
 
 @RestController
 public class HeartbeatController {
 
 	@GetMapping("/api/heartbeat")
 	public ResponseEntity<?> heartbeat() {
-		return ResponseEntity.ok(new ApiResponse("heartbeat"));
+		return SimpleResponse.ok("heartbeat");
 	}
 
 }

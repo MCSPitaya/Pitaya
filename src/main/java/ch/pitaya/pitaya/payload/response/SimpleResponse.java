@@ -1,11 +1,14 @@
 package ch.pitaya.pitaya.payload.response;
 
+import java.sql.Timestamp;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 public class SimpleResponse {
 
 	private String message;
+	private Timestamp time = new Timestamp(System.currentTimeMillis());
 
 	private SimpleResponse(String message) {
 		this.message = message;
@@ -13,6 +16,10 @@ public class SimpleResponse {
 
 	public String getMessage() {
 		return message;
+	}
+
+	public Timestamp getTime() {
+		return time;
 	}
 
 	public static ResponseEntity<?> create(HttpStatus status, String message) {

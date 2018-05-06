@@ -49,15 +49,12 @@ public class TokenService {
 		return res;
 	}
 
-	public boolean revokeToken() {
+	public void revokeToken() {
 		String token = securityFacade.getCurrentToken();
 		Optional<Token> tokenStore = tokenStoreRepository.findByToken(token);
 		if (tokenStore.isPresent()) {
 			tokenStoreRepository.delete(tokenStore.get());
 			tokenStoreRepository.flush();
-			return true;
-		} else {
-			return false;
 		}
 	}
 

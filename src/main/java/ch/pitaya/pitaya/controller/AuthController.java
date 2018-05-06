@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import ch.pitaya.pitaya.payload.request.LoginRequest;
-import ch.pitaya.pitaya.payload.response.ApiResponse;
+import ch.pitaya.pitaya.payload.response.SimpleResponse;
 import ch.pitaya.pitaya.security.TokenPair;
 import ch.pitaya.pitaya.service.AuthService;
 import ch.pitaya.pitaya.service.TokenService;
@@ -40,8 +40,8 @@ public class AuthController {
 
 	@PostMapping("/logout")
 	public ResponseEntity<?> logoutUser() {
-		boolean removed = tokenService.revokeToken();
-		return ResponseEntity.ok(new ApiResponse(removed, "logout successful"));
+		tokenService.revokeToken();
+		return SimpleResponse.ok("logout successful");
 	}
 
 }

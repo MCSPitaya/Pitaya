@@ -20,7 +20,6 @@ import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.model.User;
 import ch.pitaya.pitaya.payload.request.PatchFirmRequest;
 import ch.pitaya.pitaya.payload.request.SignUpRequest;
-import ch.pitaya.pitaya.payload.response.ApiResponse;
 import ch.pitaya.pitaya.payload.response.FirmSummary;
 import ch.pitaya.pitaya.payload.response.SimpleResponse;
 import ch.pitaya.pitaya.payload.response.UserSummary;
@@ -50,7 +49,7 @@ public class FirmController {
 	public ResponseEntity<?> addUser(@Valid @RequestBody SignUpRequest signUpRequest) {
 		Firm firm = securityFacade.getCurrentFirm();
 		userService.createUser(signUpRequest, firm);
-		return ResponseEntity.ok(new ApiResponse("user created"));
+		return SimpleResponse.ok("user '" + signUpRequest.getUsername() + "' created");
 	}
 
 	@GetMapping("/info")
