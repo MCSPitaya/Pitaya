@@ -7,6 +7,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import ch.pitaya.pitaya.authorization.AuthCode;
+import ch.pitaya.pitaya.authorization.Authorization;
+import ch.pitaya.pitaya.authorization.AuthorizeCase;
+import ch.pitaya.pitaya.authorization.AuthorizeFile;
 import ch.pitaya.pitaya.model.Case;
 import ch.pitaya.pitaya.model.File;
 import ch.pitaya.pitaya.model.Firm;
@@ -22,6 +26,9 @@ public class NotificationService {
 
 	@Autowired
 	private SecurityFacade security;
+
+	@Autowired
+	private Authorization auth;
 
 	@Autowired
 	private NotificationRepository repo;
@@ -66,13 +73,30 @@ public class NotificationService {
 	}
 
 	public List<Notification> getFirmNotifications(Firm firm, int page, int size) {
-		return Utils.paginate(firm.getNotifications(), page, size);
+		return Utils.paginate(firm.getNotifications(), page, size, n -> {
+			File f = n.getFile();
+			Case c = n.getCase();
+			if (f != null) {
+				return auth.test(f, AuthCode.FILE_READ);
+			} else if (c != null) {
+				return auth.test(c, AuthCode.CASE_READ);
+			} else {
+				return true;
+			}
+		});
 	}
 
+	@AuthorizeCase(AuthCode.CASE_READ)
 	public List<Notification> getCaseNotifications(Case case_, int page, int size) {
-		return Utils.paginate(case_.getNotifications(), page, size);
+		return Utils.paginate(case_.getNotifications(), page, size, n -> {
+			File f = n.getFile();
+			if (f != null)
+				return auth.test(f, AuthCode.FILE_READ);
+			return true;
+		});
 	}
 
+	@AuthorizeFile(AuthCode.FILE_READ)
 	public List<Notification> getFileNotifications(File file, int page, int size) {
 		return Utils.paginate(file.getNotifications(), page, size);
 	}
