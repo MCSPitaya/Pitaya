@@ -43,6 +43,7 @@ public class Client {
 
 	public Client(Firm firm, String firstName, String lastName, String street, String number, String city,
 			String zipCode, String telNumber, String email) {
+		this.firm = firm;
 		this.lastName = lastName;
 		this.firstName = firstName;
 		this.street = street;
