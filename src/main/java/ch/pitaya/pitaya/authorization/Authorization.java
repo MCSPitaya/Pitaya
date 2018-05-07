@@ -46,20 +46,20 @@ public class Authorization {
 
 	public boolean test(AuthCode... authCodes) {
 		User user = securityFacade.getCurrentUser();
-		return test(authCodes, user.getAuthCodes(), null, null);
+		return test(user.getAuthCodes(), null, null, authCodes);
 	}
 
 	public boolean test(Case caze, AuthCode... authCodes) {
 		User user = securityFacade.getCurrentUser();
-		return test(authCodes, user.getAuthCodes(), caze.getAuthCodes(user), null);
+		return test(user.getAuthCodes(), caze.getAuthCodes(user), null, authCodes);
 	}
 
 	public boolean test(File file, AuthCode... authCodes) {
 		User user = securityFacade.getCurrentUser();
-		return test(authCodes, user.getAuthCodes(), file.getCase().getAuthCodes(user), file.getAuthCodes(user));
+		return test(user.getAuthCodes(), file.getCase().getAuthCodes(user), file.getAuthCodes(user), authCodes);
 	}
 
-	private boolean test(AuthCode[] need, String _user, String _case, String _file) {
+	public boolean test(String _user, String _case, String _file, AuthCode... need) {
 		List<AuthCode> codes = resolver.decode(_user, _case, _file);
 		for (AuthCode code : need) {
 			if (!codes.contains(code)) {

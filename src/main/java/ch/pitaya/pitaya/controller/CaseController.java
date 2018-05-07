@@ -1,6 +1,7 @@
 package ch.pitaya.pitaya.controller;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.validation.Valid;
@@ -28,11 +29,11 @@ import ch.pitaya.pitaya.model.NotificationType;
 import ch.pitaya.pitaya.model.User;
 import ch.pitaya.pitaya.payload.request.CreateCaseRequest;
 import ch.pitaya.pitaya.payload.response.CaseDetails;
-import ch.pitaya.pitaya.payload.response.CaseSummary;
 import ch.pitaya.pitaya.payload.response.FileSummary;
 import ch.pitaya.pitaya.payload.response.SimpleResponse;
 import ch.pitaya.pitaya.repository.CaseRepository;
 import ch.pitaya.pitaya.repository.CourtRepository;
+import ch.pitaya.pitaya.repository.V_CaseSummaryRepository;
 import ch.pitaya.pitaya.security.SecurityFacade;
 import ch.pitaya.pitaya.service.CaseService;
 import ch.pitaya.pitaya.service.FileService;
@@ -61,12 +62,19 @@ public class CaseController {
 	private CourtRepository courtRepo;
 
 	@Autowired
+	private V_CaseSummaryRepository caseSummaryRepo;
+
+	@Autowired
 	private Authorization auth;
 
 	@GetMapping
-	public Stream<CaseSummary> getCaseList() {
-		Firm firm = securityFacade.getCurrentFirm();
-		return firm.getCases().stream().filter(c -> auth.test(c, AuthCode.CASE_READ)).map(CaseSummary::new);
+	@Transactional
+	public Object getCaseList() {
+		User user = securityFacade.getCurrentUser();
+
+		return caseSummaryRepo.findAllByUserId(user.getId())
+				.filter(c -> auth.test(user.getAuthCodes(), c.getAuthCodes(), null, AuthCode.CASE_READ))
+				.collect(Collectors.toList());
 	}
 
 	@GetMapping("/{id}")
