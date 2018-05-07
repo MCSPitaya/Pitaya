@@ -12,6 +12,8 @@ import ch.pitaya.pitaya.authorization.AuthCode;
 import ch.pitaya.pitaya.authorization.Authorization;
 import ch.pitaya.pitaya.exception.BadRequestException;
 import ch.pitaya.pitaya.exception.ResourceNotFoundException;
+import ch.pitaya.pitaya.model.Case;
+import ch.pitaya.pitaya.model.File;
 import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.model.User;
 import ch.pitaya.pitaya.payload.request.AuthCodeChangeRequest;
@@ -82,19 +84,19 @@ public class RightsController {
 	@GetMapping("/user/{uid}/rights/case/{cid}")
 	public AuthCodeResponse getCaseAuthCodes(@PathVariable("uid") Long uid, @PathVariable("cid") Long cid) {
 		Firm firm = securityFacade.getCurrentFirm();
-		return caseRepo.findByIdAndFirm(cid, firm).map(c -> {
-			return userRepo.findByIdAndFirm(uid, firm).map(u -> rightsService.getAuthCodesSafe(u, c))
-					.orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
-		}).orElseThrow(() -> new ResourceNotFoundException("case", "id", cid));
+		Case c = caseRepo.findByIdAndFirm(cid, firm)
+				.orElseThrow(() -> new ResourceNotFoundException("case", "id", cid));
+		return userRepo.findByIdAndFirm(uid, firm).map(u -> rightsService.getAuthCodesSafe(u, c))
+				.orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
 	}
 
 	@GetMapping("/user/{uid}/rights/file/{fid}")
 	public AuthCodeResponse getFileAuthCodes(@PathVariable("uid") Long uid, @PathVariable("fid") Long fid) {
 		Firm firm = securityFacade.getCurrentFirm();
-		return fileRepo.findByIdAndTheCaseFirm(fid, firm).map(f -> {
-			return userRepo.findByIdAndFirm(uid, firm).map(u -> rightsService.getAuthCodesSafe(u, f))
-					.orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
-		}).orElseThrow(() -> new ResourceNotFoundException("file", "id", fid));
+		File f = fileRepo.findByIdAndTheCaseFirm(fid, firm)
+				.orElseThrow(() -> new ResourceNotFoundException("file", "id", fid));
+		return userRepo.findByIdAndFirm(uid, firm).map(u -> rightsService.getAuthCodesSafe(u, f))
+				.orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
 	}
 
 	// #### SET SOME DUDES RIGHTS ####
@@ -118,12 +120,12 @@ public class RightsController {
 		if (uid == user.getId())
 			throw new BadRequestException("cannot modify your own rights!");
 		Firm firm = user.getFirm();
-		return caseRepo.findByIdAndFirm(cid, firm).map(c -> {
-			return userRepo.findByIdAndFirm(uid, firm).map(u -> {
-				rightsService.setAuthCodesSafe(r, u, c);
-				return SimpleResponse.ok("update successful");
-			}).orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
-		}).orElseThrow(() -> new ResourceNotFoundException("case", "id", cid));
+		Case c = caseRepo.findByIdAndFirm(cid, firm)
+				.orElseThrow(() -> new ResourceNotFoundException("case", "id", cid));
+		return userRepo.findByIdAndFirm(uid, firm).map(u -> {
+			rightsService.setAuthCodesSafe(r, u, c);
+			return SimpleResponse.ok("update successful");
+		}).orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
 	}
 
 	@PatchMapping("/user/{uid}/rights/file/{fid}")
@@ -133,12 +135,12 @@ public class RightsController {
 		if (uid == user.getId())
 			throw new BadRequestException("cannot modify your own rights!");
 		Firm firm = user.getFirm();
-		return fileRepo.findByIdAndTheCaseFirm(fid, firm).map(f -> {
-			return userRepo.findByIdAndFirm(uid, firm).map(u -> {
-				rightsService.setAuthCodesSafe(r, u, f);
-				return SimpleResponse.ok("update successful");
-			}).orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
-		}).orElseThrow(() -> new ResourceNotFoundException("file", "id", fid));
+		File f = fileRepo.findByIdAndTheCaseFirm(fid, firm)
+				.orElseThrow(() -> new ResourceNotFoundException("file", "id", fid));
+		return userRepo.findByIdAndFirm(uid, firm).map(u -> {
+			rightsService.setAuthCodesSafe(r, u, f);
+			return SimpleResponse.ok("update successful");
+		}).orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
 	}
 
 }
