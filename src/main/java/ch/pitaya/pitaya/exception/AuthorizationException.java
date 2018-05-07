@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import ch.pitaya.pitaya.authorization.AuthCode;
 
 /**
- * Exception for failed authorization (HTTP 401 - UNAUTHORIZED)
+ * Exception for failed authorization (HTTP 403 - FORBIDDEN)
  */
-@ResponseStatus(HttpStatus.UNAUTHORIZED)
+@ResponseStatus(HttpStatus.FORBIDDEN)
 public class AuthorizationException extends RuntimeException {
 
 	/**
