@@ -11,8 +11,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ch.pitaya.pitaya.authorization.AuthCode;
+import ch.pitaya.pitaya.authorization.Authorize;
 import ch.pitaya.pitaya.exception.ResourceNotFoundException;
 import ch.pitaya.pitaya.model.User;
+import ch.pitaya.pitaya.payload.request.ChangeAnotherPasswordRequest;
 import ch.pitaya.pitaya.payload.request.ChangePasswordRequest;
 import ch.pitaya.pitaya.payload.response.SimpleResponse;
 import ch.pitaya.pitaya.payload.response.UserSummary;
@@ -45,7 +48,7 @@ public class UserController {
 	@PostMapping("/password")
 	public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
 		User user = securityFacade.getCurrentUser();
-		userService.changePassword(user, request);
+		userService.changePassword(user, request.getOldPassword(), user, request.getNewPassword());
 		return SimpleResponse.ok("password changed");
 	}
 
@@ -56,6 +59,18 @@ public class UserController {
 				.filter(u -> u.isTechUser() || (u.getFirm().getId() == myFirm)) //
 				.map(UserSummary::new) //
 				.orElseThrow(() -> new ResourceNotFoundException("user", "id", userId));
+	}
+
+	@PostMapping("/{id}/password")
+	@Authorize(AuthCode.USER_CHANGE_PASSWORD)
+	public ResponseEntity<?> changePassword(@PathVariable("id") long id,
+			@Valid @RequestBody ChangeAnotherPasswordRequest request) {
+		User user = securityFacade.getCurrentUser();
+		return userRepository.findByIdAndFirm(id, user.getFirm()).map(u -> {
+			userService.changePassword(user, request.getPassword(), u, request.getNewPassword());
+			return SimpleResponse.ok("password changed");
+		}).orElseThrow(() -> new ResourceNotFoundException("user", "id", id));
+
 	}
 
 }

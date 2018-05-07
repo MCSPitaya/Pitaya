@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import ch.pitaya.pitaya.exception.BadRequestException;
 import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.model.User;
-import ch.pitaya.pitaya.payload.request.ChangePasswordRequest;
 import ch.pitaya.pitaya.payload.request.SignUpRequest;
 import ch.pitaya.pitaya.repository.UserRepository;
 
@@ -35,19 +34,18 @@ public class UserService {
 		if (userRepository.existsByEmail(request.getEmail()))
 			throw new BadRequestException("Email Address already in use!");
 
-		
 		// Creating user's account
 		User user = new User(request.getName(), request.getUsername(), request.getEmail(),
 				passwordEncoder.encode(request.getPassword()), firm, "BASIC_USER");
-		
+
 		userRepository.saveAndFlush(user);
 	}
 
-	public void changePassword(User user, ChangePasswordRequest request) {
-		if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword()))
-			throw new BadRequestException("incorrect password");
-		user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-		userRepository.save(user);
+	public void changePassword(User changer, String changerPW, User changee, String changeePW) {
+		if (!passwordEncoder.matches(changerPW, changer.getPassword()))
+			throw new BadRequestException("password incorrect");
+		changee.setPassword(passwordEncoder.encode(changeePW));
+		userRepository.save(changee);
 	}
 
 }
