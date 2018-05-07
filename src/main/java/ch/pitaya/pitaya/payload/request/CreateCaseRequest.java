@@ -4,6 +4,8 @@ import javax.validation.constraints.NotBlank;
 
 public class CreateCaseRequest {
 
+	private long courtId;
+	
 	@NotBlank
 	private String title;
 
@@ -24,4 +26,8 @@ public class CreateCaseRequest {
 		return description;
 	}
 
+	public long getCourtId() {
+		return courtId;
+	}
+	
 }

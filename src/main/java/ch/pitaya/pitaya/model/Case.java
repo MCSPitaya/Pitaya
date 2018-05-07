@@ -60,14 +60,18 @@ public class Case {
     @CollectionTable(name = "case_clients", joinColumns = @JoinColumn(name = "case_id"))
     @Column(name = "client_id")
 	private List<Client> clients;
+	
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	private Court court;
 
 
 	protected Case() {
 		// JPA
 	}
 
-	public Case(Firm firm, String caseNumber, String title, String description, User user) {
+	public Case(Firm firm, Court court, String caseNumber, String title, String description, User user) {
 		this.caseNumber = caseNumber;
+		this.court = court;
 		this.title = title;
 		this.description = description;
 		this.firm = firm;
@@ -184,4 +188,12 @@ public class Case {
 			clients.remove(client);
 	}
 
+	public void setCourt(Court court) {
+		this.court = court;
+	}
+	
+	public Court getCourt() {
+		return court;
+	}
+	
 }
