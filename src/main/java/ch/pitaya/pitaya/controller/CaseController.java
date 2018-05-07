@@ -32,6 +32,7 @@ import ch.pitaya.pitaya.payload.response.CaseSummary;
 import ch.pitaya.pitaya.payload.response.FileSummary;
 import ch.pitaya.pitaya.payload.response.SimpleResponse;
 import ch.pitaya.pitaya.repository.CaseRepository;
+import ch.pitaya.pitaya.repository.CourtRepository;
 import ch.pitaya.pitaya.security.SecurityFacade;
 import ch.pitaya.pitaya.service.CaseService;
 import ch.pitaya.pitaya.service.FileService;
@@ -57,6 +58,9 @@ public class CaseController {
 	private CaseService caseService;
 
 	@Autowired
+	private CourtRepository courtRepo;
+
+	@Autowired
 	private Authorization auth;
 
 	@GetMapping
@@ -80,8 +84,11 @@ public class CaseController {
 	public CaseDetails createCase(@Valid @RequestBody CreateCaseRequest request) {
 		User user = securityFacade.getCurrentUser();
 		Firm firm = user.getFirm();
-		Case case_ = caseRepository
-				.save(new Case(firm, request.getNumber(), request.getTitle(), request.getDescription(), user));
+
+		Case case_ = courtRepo.findById(request.getCourtId())
+				.map(c -> new Case(firm, c, request.getNumber(), request.getTitle(), request.getDescription(), user))
+				.orElseThrow(() -> new ResourceNotFoundException("court", "id", request.getCourtId()));
+		case_ = caseRepository.save(case_);
 		notificationService.add(NotificationType.CASE_CREATED, case_);
 		return new CaseDetails(case_);
 	}
