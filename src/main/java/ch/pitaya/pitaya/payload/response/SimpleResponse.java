@@ -33,5 +33,9 @@ public class SimpleResponse {
 	public static ResponseEntity<?> ok(String message) {
 		return ResponseEntity.ok(new SimpleResponse(message));
 	}
+	
+	public static ResponseEntity<?> ok() {
+		return ResponseEntity.noContent().build();
+	}
 
 }

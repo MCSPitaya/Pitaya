@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import ch.pitaya.pitaya.cache.Cache;
+
 @Component
 public class AuthCodeResolver {
 
@@ -69,6 +71,7 @@ public class AuthCodeResolver {
 	}
 
 	// TODO: caching
+	@Cache
 	public List<AuthCode> decode(String _user, String _case, String _file) {
 		List<AuthCode> codes = decode(_user, false);
 		if (_case != null) {

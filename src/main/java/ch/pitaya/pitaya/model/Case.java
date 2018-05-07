@@ -1,6 +1,7 @@
 package ch.pitaya.pitaya.model;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +60,7 @@ public class Case {
 	@ElementCollection
     @CollectionTable(name = "case_clients", joinColumns = @JoinColumn(name = "case_id"))
     @Column(name = "client_id")
-	private List<Client> clients;
+	private List<Client> clients = new ArrayList<>();
 	
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	private Court court;
