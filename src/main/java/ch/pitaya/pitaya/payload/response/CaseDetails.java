@@ -15,6 +15,7 @@ public class CaseDetails {
 	private String description;
 	private Timestamp created, modified;
 	private UserSummary createdBy, modifiedBy;
+	private CourtSummary court;
 	private List<ClientDetails> clients = new ArrayList<>();
 
 	public CaseDetails(Case c) {
@@ -28,6 +29,7 @@ public class CaseDetails {
 		this.modifiedBy = new UserSummary(c.getModificationUser());
 		for (Client client : c.getClients())
 			clients.add(new ClientDetails(client));
+		this.court = new CourtSummary(c.getCourt());
 	}
 
 	public Long getId() {
@@ -61,9 +63,13 @@ public class CaseDetails {
 	public UserSummary getModifiedBy() {
 		return modifiedBy;
 	}
-	
+
 	public List<ClientDetails> getClients() {
 		return clients;
+	}
+
+	public CourtSummary getCourt() {
+		return court;
 	}
 
 }
