@@ -55,6 +55,11 @@ public class Case {
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "mod_uid", nullable = false, updatable = true)
 	private User mod_user;
+	
+	@ElementCollection
+    @CollectionTable(name = "case_clients", joinColumns = @JoinColumn(name = "case_id"))
+    @Column(name = "client_id")
+	private List<Client> clients;
 
 
 	protected Case() {
@@ -159,6 +164,24 @@ public class Case {
 
 	public User getModificationUser() {
 		return mod_user;
+	}
+	
+	public List<Client> getClients() {
+		return clients;
+	}
+	
+	public void setClients(List<Client> clients) {
+		this.clients = clients;
+	}
+	
+	public void addClient(Client client) {
+		if (!clients.contains(client))
+			clients.add(client);
+	}
+	
+	public void removeClient(Client client) {
+		if (clients.contains(client))
+			clients.remove(client);
 	}
 
 }

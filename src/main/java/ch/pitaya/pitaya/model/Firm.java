@@ -35,6 +35,9 @@ public class Firm {
 
 	@OneToMany(mappedBy = "firm")
 	private List<Case> cases;
+	
+	@OneToMany(mappedBy = "firm")
+	private List<Client> clients;
 
 	@OneToMany(mappedBy = "firm")
 	@OrderBy("cre_dat DESC")
@@ -109,4 +112,9 @@ public class Firm {
 	public List<Notification> getNotifications() {
 		return notifications;
 	}
+	
+	public List<Client> getClients() {
+		return clients;
+	}
+	
 }
