@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ch.pitaya.pitaya.authorization.AuthCode;
 import ch.pitaya.pitaya.authorization.Authorization;
 import ch.pitaya.pitaya.authorization.Authorize;
+import ch.pitaya.pitaya.authorization.AuthorizeFile;
 import ch.pitaya.pitaya.exception.BadRequestException;
 import ch.pitaya.pitaya.exception.ResourceNotFoundException;
 import ch.pitaya.pitaya.model.File;
@@ -48,18 +49,15 @@ public class FileController {
 	private FileService fileService;
 
 	@GetMapping("/{id}")
+	@AuthorizeFile(AuthCode.FILE_READ)
 	public FileDetails getFileDetails(@PathVariable Long id) {
-		Firm firm = securityFacade.getCurrentFirm();
-		Optional<File> file_ = fileRepository.findByIdAndTheCaseFirm(id, firm);
-		if (file_.isPresent()) {
-			auth.require(file_.get(), AuthCode.FILE_READ);
-			return new FileDetails(file_.get());
-		}
-		throw new ResourceNotFoundException("file", "id", id);
+		File file = fileRepository.findById(id).get();
+		return new FileDetails(file);
 	}
 
 	@PatchMapping("/{id}")
-	public ResponseEntity<?> patchFileDetails(@PathVariable("id") Long id, @RequestBody PatchFileDetailsRequest request) {
+	public ResponseEntity<?> patchFileDetails(@PathVariable("id") Long id,
+			@RequestBody PatchFileDetailsRequest request) {
 		User user = securityFacade.getCurrentUser();
 		Firm firm = user.getFirm();
 		Optional<File> file_ = fileRepository.findByIdAndTheCaseFirm(id, firm);

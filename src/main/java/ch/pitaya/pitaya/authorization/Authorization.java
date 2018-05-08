@@ -6,9 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ch.pitaya.pitaya.exception.AuthorizationException;
+import ch.pitaya.pitaya.exception.ResourceNotFoundException;
 import ch.pitaya.pitaya.model.Case;
 import ch.pitaya.pitaya.model.File;
 import ch.pitaya.pitaya.model.User;
+import ch.pitaya.pitaya.repository.V_CaseAuthRepository;
+import ch.pitaya.pitaya.repository.V_FileAuthRepository;
 import ch.pitaya.pitaya.security.SecurityFacade;
 
 @Component
@@ -19,6 +22,11 @@ public class Authorization {
 
 	@Autowired
 	private SecurityFacade securityFacade;
+
+	@Autowired
+	private V_FileAuthRepository fileAuthRepo;
+	@Autowired
+	private V_CaseAuthRepository caseAuthRepo;
 
 	/**
 	 * Verifies that the currently logged in user has all the given authorization
@@ -71,6 +79,24 @@ public class Authorization {
 			}
 		}
 		return true;
+	}
+
+	public void requireCase(Long caseId, AuthCode[] codes) {
+		Long userId = securityFacade.getCurrentUserId();
+		boolean authorized = caseAuthRepo.findByIdAndUserId(caseId, userId) //
+				.map(ca -> test(ca, codes)) //
+				.orElseThrow(() -> new ResourceNotFoundException("case", "id", caseId));
+		if (!authorized)
+			throw new AuthorizationException(codes);
+	}
+
+	public void requireFile(Long fileId, AuthCode[] codes) {
+		Long userId = securityFacade.getCurrentUserId();
+		boolean authorized = fileAuthRepo.findByIdAndUserId(fileId, userId) //
+				.map(fa -> test(fa, codes)) //
+				.orElseThrow(() -> new ResourceNotFoundException("file", "id", fileId));
+		if (!authorized)
+			throw new AuthorizationException(codes);
 	}
 
 }

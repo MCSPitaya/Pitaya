@@ -41,17 +41,22 @@ public class MethodAuthorizationInterceptor implements MethodInterceptor {
 	}
 
 	private void doCaseAuth(MethodInvocation invocation, AuthCode[] codes, String param) {
-		Case caze = findParam(invocation, Case.class, param);
-		auth.require(caze, codes);
+		Object raw = findParam(invocation, Case.class, param);
+		if (raw instanceof Case)
+			auth.require((Case) raw, codes);
+		else
+			auth.requireCase((Long) raw, codes);
 	}
 
 	private void doFileAuth(MethodInvocation invocation, AuthCode[] codes, String param) {
-		File file = findParam(invocation, File.class, param);
-		auth.require(file, codes);
+		Object raw = findParam(invocation, File.class, param);
+		if (raw instanceof File)
+			auth.require((File) raw, codes);
+		else
+			auth.requireFile((Long) raw, codes);
 	}
 
-	@SuppressWarnings("unchecked")
-	private <T> T findParam(MethodInvocation invocation, Class<T> clazz, String param) {
+	private Object findParam(MethodInvocation invocation, Class<?> clazz, String param) {
 		int index = findIndex(invocation.getMethod(), clazz, param);
 		switch (index) {
 		case -1:
@@ -61,7 +66,7 @@ public class MethodAuthorizationInterceptor implements MethodInterceptor {
 		case -3:
 			throw new AppException("parameter '" + param + "' is not of type " + clazz.getName());
 		default:
-			return (T) invocation.getArguments()[index];
+			return invocation.getArguments()[index];
 		}
 	}
 
@@ -77,7 +82,8 @@ public class MethodAuthorizationInterceptor implements MethodInterceptor {
 		for (int i = 0; i < parameters.length; i++) {
 			Parameter parameter = parameters[i];
 			if (parameter.getName().equals(param)) {
-				if (parameter.getType().isAssignableFrom(clazz))
+				if (parameter.getType().equals(Long.class) || parameter.getType().equals(Long.TYPE)
+						|| parameter.getType().isAssignableFrom(clazz))
 					return i;
 				else
 					return -3; // TYPE ERROR
@@ -90,7 +96,7 @@ public class MethodAuthorizationInterceptor implements MethodInterceptor {
 		int index = -1;
 		for (int i = 0; i < method.getParameterTypes().length; i++) {
 			Class<?> clazz1 = method.getParameterTypes()[i];
-			if (clazz1.isAssignableFrom(clazz)) {
+			if (clazz1.equals(Long.class) || clazz1.equals(Long.TYPE) || clazz1.isAssignableFrom(clazz)) {
 				if (index == -1)
 					index = i;
 				else
