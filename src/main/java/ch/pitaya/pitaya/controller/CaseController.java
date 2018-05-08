@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ch.pitaya.pitaya.authorization.AuthCode;
 import ch.pitaya.pitaya.authorization.Authorization;
 import ch.pitaya.pitaya.authorization.Authorize;
+import ch.pitaya.pitaya.authorization.AuthorizeCase;
 import ch.pitaya.pitaya.exception.ResourceNotFoundException;
 import ch.pitaya.pitaya.model.Case;
 import ch.pitaya.pitaya.model.Firm;
@@ -72,8 +73,7 @@ public class CaseController {
 	public Object getCaseList() {
 		long userId = securityFacade.getCurrentUserId();
 
-		return caseSummaryRepo.findAllByUserId(userId)
-				.filter(c -> auth.test(c, AuthCode.CASE_READ))
+		return caseSummaryRepo.findAllByUserId(userId).filter(c -> auth.test(c, AuthCode.CASE_READ))
 				.collect(Collectors.toList());
 	}
 
@@ -102,6 +102,7 @@ public class CaseController {
 	}
 
 	@GetMapping("/{id}/files")
+	@AuthorizeCase(AuthCode.CASE_READ)
 	public Stream<FileSummary> getFileList(@PathVariable Long id) {
 		Firm firm = securityFacade.getCurrentFirm();
 		return caseRepository.findByIdAndFirm(id, firm).map(caseService::getFileList)
@@ -109,26 +110,20 @@ public class CaseController {
 	}
 
 	@PatchMapping("/{id}")
+	@AuthorizeCase(AuthCode.CASE_MODIFY)
 	public Object patchCase(@PathVariable("id") Long id) {
-		Firm firm = securityFacade.getCurrentFirm();
-		Optional<Case> case_ = caseRepository.findByIdAndFirm(id, firm);
-		if (case_.isPresent()) {
-			caseService.patchCase(case_.get());
-			return SimpleResponse.ok("case updated");
-		}
-		throw new ResourceNotFoundException("case", "id", id);
+		Case case_ = caseRepository.findById(id).get();
+		caseService.patchCase(case_);
+		return SimpleResponse.ok("case updated");
 	}
 
 	@PostMapping("/{id}/file")
+	@AuthorizeCase(AuthCode.CASE_CREATE_FILE)
 	public ResponseEntity<?> addFile(@PathVariable Long id, @RequestPart("file") MultipartFile multipartFile) {
 		User user = securityFacade.getCurrentUser();
-		Firm firm = user.getFirm();
-		Optional<Case> case_ = caseRepository.findByIdAndFirm(id, firm);
-		if (case_.isPresent()) {
-			fileService.addFile(case_.get(), multipartFile, user);
-			return SimpleResponse.ok("Update successful");
-		}
-		throw new ResourceNotFoundException("case", "id", id);
+		Case case_ = caseRepository.findById(id).get();
+		fileService.addFile(case_, multipartFile, user);
+		return SimpleResponse.ok("Update successful");
 	}
 
 }

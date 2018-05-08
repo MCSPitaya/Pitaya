@@ -1,7 +1,5 @@
 package ch.pitaya.pitaya.controller;
 
-import java.util.Optional;
-
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import ch.pitaya.pitaya.authorization.AuthCode;
-import ch.pitaya.pitaya.authorization.Authorization;
-import ch.pitaya.pitaya.authorization.Authorize;
 import ch.pitaya.pitaya.authorization.AuthorizeFile;
-import ch.pitaya.pitaya.exception.BadRequestException;
-import ch.pitaya.pitaya.exception.ResourceNotFoundException;
 import ch.pitaya.pitaya.model.File;
-import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.model.User;
 import ch.pitaya.pitaya.payload.request.PatchFileDetailsRequest;
 import ch.pitaya.pitaya.payload.response.FileDetails;
@@ -40,9 +33,6 @@ public class FileController {
 	private SecurityFacade securityFacade;
 
 	@Autowired
-	private Authorization auth;
-
-	@Autowired
 	private FileRepository fileRepository;
 
 	@Autowired
@@ -56,53 +46,38 @@ public class FileController {
 	}
 
 	@PatchMapping("/{id}")
+	@AuthorizeFile(AuthCode.FILE_EDIT)
 	public ResponseEntity<?> patchFileDetails(@PathVariable("id") Long id,
 			@RequestBody PatchFileDetailsRequest request) {
 		User user = securityFacade.getCurrentUser();
-		Firm firm = user.getFirm();
-		Optional<File> file_ = fileRepository.findByIdAndTheCaseFirm(id, firm);
-		if (file_.isPresent()) {
-			fileService.patchFile(request, file_.get(), user);
-			return SimpleResponse.ok("Update successful");
-		}
-		throw new ResourceNotFoundException("file", "id", id);
+		File file = fileRepository.findById(id).get();
+		fileService.patchFile(request, file, user);
+		return SimpleResponse.ok("Update successful");
 	}
 
 	@GetMapping("/{id}/content")
+	@AuthorizeFile(AuthCode.FILE_READ)
 	public void downloadFile(@PathVariable Long id, HttpServletResponse response) {
-		Firm firm = securityFacade.getCurrentFirm();
-		Optional<File> file_ = fileRepository.findByIdAndTheCaseFirm(id, firm);
-		if (file_.isPresent()) {
-			fileService.createFileDownload(response, file_.get());
-		} else {
-			throw new ResourceNotFoundException("file", "id", id);
-		}
+		File file = fileRepository.findById(id).get();
+		fileService.createFileDownload(response, file);
 	}
 
 	@PatchMapping("/{id}/content")
-	@Authorize(AuthCode.FILE_EDIT)
+	@AuthorizeFile(AuthCode.FILE_UPDATE)
 	public ResponseEntity<?> editFile(@PathVariable Long id, @RequestPart("file") MultipartFile multipartFile) {
 		User user = securityFacade.getCurrentUser();
-		Optional<File> file_ = fileRepository.findById(id);
-		if (file_.isPresent()) {
-			File file = file_.get();
-			fileService.addFileRevision(file, multipartFile, user);
-			return SimpleResponse.ok("Update successful");
-		}
-		throw new BadRequestException("Invalid file id");
+		File file = fileRepository.findById(id).get();
+		fileService.addFileRevision(file, multipartFile, user);
+		return SimpleResponse.ok("Update successful");
 	}
 
 	@DeleteMapping("/{id}")
-	@Authorize(AuthCode.FILE_EDIT)
+	@AuthorizeFile(AuthCode.FILE_DELETE)
 	public ResponseEntity<?> deleteFile(@PathVariable Long id) {
 		User user = securityFacade.getCurrentUser();
-		Optional<File> file_ = fileRepository.findById(id);
-		if (file_.isPresent()) {
-			File file = file_.get();
-			fileService.deleteFile(file, user);
-			return SimpleResponse.ok("Deletion successful");
-		}
-		throw new BadRequestException("Invalid file id");
+		File file = fileRepository.findById(id).get();
+		fileService.deleteFile(file, user);
+		return SimpleResponse.ok("Deletion successful");
 	}
 
 }

@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import ch.pitaya.pitaya.authorization.AuthCode;
+import ch.pitaya.pitaya.authorization.AuthorizeCase;
+import ch.pitaya.pitaya.authorization.AuthorizeFile;
 import ch.pitaya.pitaya.exception.ResourceNotFoundException;
 import ch.pitaya.pitaya.model.Case;
 import ch.pitaya.pitaya.model.File;
@@ -57,6 +60,7 @@ public class NotificationController {
 	}
 
 	@GetMapping("/case/{id}/changes")
+	@AuthorizeCase(AuthCode.CASE_READ)
 	public List<NotificationResponse> getCaseNotifications(//
 			@PathVariable("id") long caseId, //
 			@RequestParam(name = "page", defaultValue = "0") int page,
@@ -69,6 +73,7 @@ public class NotificationController {
 	}
 
 	@GetMapping("/file/{id}/changes")
+	@AuthorizeFile(AuthCode.FILE_READ)
 	public List<NotificationResponse> getFileNotifications(//
 			@PathVariable("id") long fileId, //
 			@RequestParam(name = "page", defaultValue = "0") int page,

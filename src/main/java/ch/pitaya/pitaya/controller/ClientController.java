@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import ch.pitaya.pitaya.authorization.AuthCode;
+import ch.pitaya.pitaya.authorization.Authorize;
 import ch.pitaya.pitaya.exception.ResourceNotFoundException;
 import ch.pitaya.pitaya.model.Client;
 import ch.pitaya.pitaya.model.Firm;
@@ -28,22 +30,22 @@ import ch.pitaya.pitaya.service.ClientService;
 @RestController
 @RequestMapping("/api/client")
 public class ClientController {
-	
+
 	@Autowired
 	private SecurityFacade securityFacade;
-	
+
 	@Autowired
 	private ClientRepository clientRepository;
-	
+
 	@Autowired
 	private ClientService clientService;
-	
+
 	@GetMapping
 	public Stream<ClientDetails> getClientList() {
 		Firm firm = securityFacade.getCurrentFirm();
 		return firm.getClients().stream().map(ClientDetails::new);
 	}
-	
+
 	@GetMapping("/{id}")
 	public ClientDetails getClient(@PathVariable Long id) {
 		Firm firm = securityFacade.getCurrentFirm();
@@ -53,14 +55,16 @@ public class ClientController {
 		}
 		throw new ResourceNotFoundException("client", "id", id);
 	}
-	
+
 	@PostMapping
+	@Authorize(AuthCode.FIRM_MANAGE_CLIENTS)
 	public ResponseEntity<?> addClient(@Valid @RequestBody AddPatchClientRequest request) {
 		clientService.addClient(request, securityFacade.getCurrentFirm());
 		return SimpleResponse.ok("Successfully created client");
 	}
-	
+
 	@PatchMapping("/{id}")
+	@Authorize(AuthCode.FIRM_MANAGE_CLIENTS)
 	public ResponseEntity<?> editClient(@RequestBody AddPatchClientRequest request, @PathVariable Long id) {
 		Firm firm = securityFacade.getCurrentFirm();
 		Optional<Client> client_ = clientRepository.findByIdAndFirm(id, firm);

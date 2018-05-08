@@ -3,8 +3,6 @@ package ch.pitaya.pitaya.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import ch.pitaya.pitaya.authorization.AuthCode;
-import ch.pitaya.pitaya.authorization.Authorize;
 import ch.pitaya.pitaya.model.Client;
 import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.payload.request.AddPatchClientRequest;
@@ -16,7 +14,6 @@ public class ClientService {
 	@Autowired
 	private ClientRepository clientRepository;
 	
-	@Authorize(AuthCode.FIRM_MANAGE_CLIENTS)
 	public void patchClient(AddPatchClientRequest request, Client client) {
 		if (request.getFirstName() != null) {
 			client.setFirstName(request.getFirstName());
@@ -45,7 +42,6 @@ public class ClientService {
 		clientRepository.save(client);
 	}
 	
-	@Authorize(AuthCode.FIRM_MANAGE_CLIENTS)
 	public void addClient(AddPatchClientRequest request, Firm firm) {
 		Client client = new Client(firm, request.getFirstName(), request.getLastName(), request.getStreet(), request.getNumber(), request.getCity(), request.getZipCode(), request.getTelNumber(), request.getEmail());
 		clientRepository.save(client);

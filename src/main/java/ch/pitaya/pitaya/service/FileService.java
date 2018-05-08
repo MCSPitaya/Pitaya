@@ -17,9 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import ch.pitaya.pitaya.authorization.AuthCode;
-import ch.pitaya.pitaya.authorization.AuthorizeCase;
-import ch.pitaya.pitaya.authorization.AuthorizeFile;
 import ch.pitaya.pitaya.exception.BadRequestException;
 import ch.pitaya.pitaya.model.Case;
 import ch.pitaya.pitaya.model.File;
@@ -40,7 +37,7 @@ public class FileService {
 
 	@Autowired
 	private FileDataRepository fileDataRepository;
-	
+
 	@Autowired
 	private NotificationService notificationService;
 
@@ -62,7 +59,6 @@ public class FileService {
 		}
 	}
 
-	@AuthorizeCase(AuthCode.CASE_CREATE_FILE)
 	public void addFile(Case caze, MultipartFile multipartFile, User user) {
 		File file = new File(multipartFile.getOriginalFilename(), caze, user);
 		Optional<File> file_ = fileRepository.findByNameAndTheCaseId(file.getName(), caze.getId());
@@ -81,7 +77,6 @@ public class FileService {
 		}
 	}
 
-	@AuthorizeFile(AuthCode.FILE_EDIT)
 	public void patchFile(PatchFileDetailsRequest request, File file, User user) {
 		if (request.getName() != null) {
 			Optional<File> file__ = fileRepository.findByNameAndTheCaseId(request.getName(), file.getCase().getId());
@@ -96,7 +91,6 @@ public class FileService {
 		fileRepository.save(file);
 	}
 
-	@AuthorizeFile(AuthCode.FILE_READ)
 	public void createFileDownload(HttpServletResponse response, File file) {
 		response.addHeader("Content-Disposition", "attachment; filename=" + file.getName());
 		List<FileData> fileDataList = file.getFileData();
@@ -112,10 +106,10 @@ public class FileService {
 		}
 	}
 
-	@AuthorizeFile(AuthCode.FILE_UPDATE)
 	public void addFileRevision(File file, MultipartFile multipartFile, User user) {
 		try {
-			FileData fileData = new FileData(file, createBlob(multipartFile.getInputStream(), multipartFile.getSize()), user);
+			FileData fileData = new FileData(file, createBlob(multipartFile.getInputStream(), multipartFile.getSize()),
+					user);
 			fileData = fileDataRepository.save(fileData);
 			file.updateModification(user);
 			fileRepository.save(file);
@@ -124,8 +118,7 @@ public class FileService {
 			throw new BadRequestException("Upload failed", e);
 		}
 	}
-	
-	@AuthorizeFile(AuthCode.FILE_DELETE)
+
 	public void deleteFile(File file, User user) {
 		List<FileData> fileDataList = file.getFileData();
 		System.out.println("List with files to delete: " + fileDataList.size());

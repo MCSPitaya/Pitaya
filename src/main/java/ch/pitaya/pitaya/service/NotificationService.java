@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 
 import ch.pitaya.pitaya.authorization.AuthCode;
 import ch.pitaya.pitaya.authorization.Authorization;
-import ch.pitaya.pitaya.authorization.AuthorizeCase;
-import ch.pitaya.pitaya.authorization.AuthorizeFile;
 import ch.pitaya.pitaya.model.Case;
 import ch.pitaya.pitaya.model.File;
 import ch.pitaya.pitaya.model.Firm;
@@ -86,7 +84,6 @@ public class NotificationService {
 		});
 	}
 
-	@AuthorizeCase(AuthCode.CASE_READ)
 	public List<Notification> getCaseNotifications(Case case_, int page, int size) {
 		return Utils.paginate(case_.getNotifications(), page, size, n -> {
 			File f = n.getFile();
@@ -96,7 +93,6 @@ public class NotificationService {
 		});
 	}
 
-	@AuthorizeFile(AuthCode.FILE_READ)
 	public List<Notification> getFileNotifications(File file, int page, int size) {
 		return Utils.paginate(file.getNotifications(), page, size);
 	}

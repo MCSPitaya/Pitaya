@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ch.pitaya.pitaya.authorization.AuthCode;
 import ch.pitaya.pitaya.authorization.Authorization;
+import ch.pitaya.pitaya.authorization.Authorize;
+import ch.pitaya.pitaya.authorization.AuthorizeCase;
+import ch.pitaya.pitaya.authorization.AuthorizeFile;
 import ch.pitaya.pitaya.exception.BadRequestException;
 import ch.pitaya.pitaya.exception.ResourceNotFoundException;
 import ch.pitaya.pitaya.model.Case;
@@ -74,34 +77,38 @@ public class RightsController {
 	// #### ANOTHER GUY'S RIGTS
 
 	@GetMapping("/user/{id}/rights")
+	@Authorize(AuthCode.FIRM_READ_ROLES)
 	public AuthCodeResponse getUserAuthCodes(@PathVariable Long id) {
 		Firm firm = securityFacade.getCurrentFirm();
 		return userRepo.findByIdAndFirm(id, firm) //
-				.map(u -> rightsService.getAuthCodesSafe(u)) //
+				.map(rightsService::getAuthCodes) //
 				.orElseThrow(() -> new ResourceNotFoundException("user", "id", id));
 	}
 
 	@GetMapping("/user/{uid}/rights/case/{cid}")
+	@AuthorizeCase(value = AuthCode.CASE_READ_ROLES, param = "cid")
 	public AuthCodeResponse getCaseAuthCodes(@PathVariable("uid") Long uid, @PathVariable("cid") Long cid) {
 		Firm firm = securityFacade.getCurrentFirm();
 		Case c = caseRepo.findByIdAndFirm(cid, firm)
 				.orElseThrow(() -> new ResourceNotFoundException("case", "id", cid));
-		return userRepo.findByIdAndFirm(uid, firm).map(u -> rightsService.getAuthCodesSafe(u, c))
+		return userRepo.findByIdAndFirm(uid, firm).map(u -> rightsService.getAuthCodes(u, c))
 				.orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
 	}
 
 	@GetMapping("/user/{uid}/rights/file/{fid}")
+	@AuthorizeFile(value = AuthCode.FILE_READ_ROLES, param = "fid")
 	public AuthCodeResponse getFileAuthCodes(@PathVariable("uid") Long uid, @PathVariable("fid") Long fid) {
 		Firm firm = securityFacade.getCurrentFirm();
 		File f = fileRepo.findByIdAndTheCaseFirm(fid, firm)
 				.orElseThrow(() -> new ResourceNotFoundException("file", "id", fid));
-		return userRepo.findByIdAndFirm(uid, firm).map(u -> rightsService.getAuthCodesSafe(u, f))
+		return userRepo.findByIdAndFirm(uid, firm).map(u -> rightsService.getAuthCodes(u, f))
 				.orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
 	}
 
 	// #### SET SOME DUDES RIGHTS ####
 
 	@PatchMapping("/user/{uid}/rights")
+	@Authorize(AuthCode.FIRM_CHANGE_ROLES)
 	public ResponseEntity<?> setUserAuthCodes(@PathVariable long uid, AuthCodeChangeRequest r) {
 		User user = securityFacade.getCurrentUser();
 		if (uid == user.getId())
@@ -114,6 +121,7 @@ public class RightsController {
 	}
 
 	@PatchMapping("/user/{uid}/rights/case/{cid}")
+	@AuthorizeCase(value = AuthCode.CASE_CHANGE_ROLES, param = "cid")
 	public ResponseEntity<?> getCaseAuthCodes(@PathVariable("uid") long uid, @PathVariable("cid") Long cid,
 			AuthCodeChangeRequest r) {
 		User user = securityFacade.getCurrentUser();
@@ -123,12 +131,13 @@ public class RightsController {
 		Case c = caseRepo.findByIdAndFirm(cid, firm)
 				.orElseThrow(() -> new ResourceNotFoundException("case", "id", cid));
 		return userRepo.findByIdAndFirm(uid, firm).map(u -> {
-			rightsService.setAuthCodesSafe(r, u, c);
+			rightsService.setAuthCodes(r, u, c);
 			return SimpleResponse.ok("update successful");
 		}).orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
 	}
 
 	@PatchMapping("/user/{uid}/rights/file/{fid}")
+	@AuthorizeFile(value = AuthCode.FILE_CHANGE_ROLES, param = "fid")
 	public ResponseEntity<?> getFileAuthCodes(@PathVariable("uid") long uid, @PathVariable("fid") Long fid,
 			AuthCodeChangeRequest r) {
 		User user = securityFacade.getCurrentUser();
@@ -138,7 +147,7 @@ public class RightsController {
 		File f = fileRepo.findByIdAndTheCaseFirm(fid, firm)
 				.orElseThrow(() -> new ResourceNotFoundException("file", "id", fid));
 		return userRepo.findByIdAndFirm(uid, firm).map(u -> {
-			rightsService.setAuthCodesSafe(r, u, f);
+			rightsService.setAuthCodes(r, u, f);
 			return SimpleResponse.ok("update successful");
 		}).orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
 	}
