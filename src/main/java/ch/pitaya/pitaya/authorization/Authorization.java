@@ -59,6 +59,10 @@ public class Authorization {
 		return test(user.getAuthCodes(), file.getCase().getAuthCodes(user), file.getAuthCodes(user), authCodes);
 	}
 
+	public boolean test(AuthCodeProvider provider, AuthCode... need) {
+		return test(provider.getUserAuthCodes(), provider.getCaseAuthCodes(), provider.getFileAuthCodes(), need);
+	}
+
 	public boolean test(String _user, String _case, String _file, AuthCode... need) {
 		List<AuthCode> codes = resolver.decode(_user, _case, _file);
 		for (AuthCode code : need) {

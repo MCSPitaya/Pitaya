@@ -70,10 +70,10 @@ public class CaseController {
 	@GetMapping
 	@Transactional
 	public Object getCaseList() {
-		User user = securityFacade.getCurrentUser();
+		long userId = securityFacade.getCurrentUserId();
 
-		return caseSummaryRepo.findAllByUserId(user.getId())
-				.filter(c -> auth.test(user.getAuthCodes(), c.getAuthCodes(), null, AuthCode.CASE_READ))
+		return caseSummaryRepo.findAllByUserId(userId)
+				.filter(c -> auth.test(c, AuthCode.CASE_READ))
 				.collect(Collectors.toList());
 	}
 

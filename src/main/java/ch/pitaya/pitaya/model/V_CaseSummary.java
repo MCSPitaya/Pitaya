@@ -9,10 +9,12 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import ch.pitaya.pitaya.authorization.AuthCodeProvider;
+
 @Entity
 @Immutable
 @Table(name = "v_case_summary")
-public class V_CaseSummary {
+public class V_CaseSummary implements AuthCodeProvider {
 
 	@Id
 	private Long id;
@@ -29,14 +31,23 @@ public class V_CaseSummary {
 	private Long userId;
 
 	@JsonIgnore
-	private String authCodes;
+	private String case_auth;
+	
+	@JsonIgnore
+	private String user_auth;
 
 	protected V_CaseSummary() {
 		// JPA
 	}
 
-	public String getAuthCodes() {
-		return authCodes;
+	@Override
+	public String getCaseAuthCodes() {
+		return case_auth;
+	}
+	
+	@Override
+	public String getUserAuthCodes() {
+		return user_auth;
 	}
 
 	public String getCaseNumber() {
@@ -61,6 +72,11 @@ public class V_CaseSummary {
 
 	public Long getUserId() {
 		return userId;
+	}
+
+	@Override
+	public String getFileAuthCodes() {
+		return null;
 	}
 
 }
