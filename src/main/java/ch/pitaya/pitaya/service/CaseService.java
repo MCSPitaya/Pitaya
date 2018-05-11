@@ -22,8 +22,4 @@ public class CaseService {
 		throw new NotImplementedException("case patch not yet implemented");
 	}
 
-	public Stream<FileSummary> getFileList(Case caze) {
-		return caze.getFiles().stream().filter(f -> auth.test(f, AuthCode.FILE_READ)).map(FileSummary::new);
-	}
-
 }

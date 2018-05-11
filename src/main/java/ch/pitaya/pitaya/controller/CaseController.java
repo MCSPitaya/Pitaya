@@ -28,13 +28,14 @@ import ch.pitaya.pitaya.model.Case;
 import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.model.NotificationType;
 import ch.pitaya.pitaya.model.User;
+import ch.pitaya.pitaya.model.V_FileSummary;
 import ch.pitaya.pitaya.payload.request.CreateCaseRequest;
 import ch.pitaya.pitaya.payload.response.CaseDetails;
-import ch.pitaya.pitaya.payload.response.FileSummary;
 import ch.pitaya.pitaya.payload.response.SimpleResponse;
 import ch.pitaya.pitaya.repository.CaseRepository;
 import ch.pitaya.pitaya.repository.CourtRepository;
 import ch.pitaya.pitaya.repository.V_CaseSummaryRepository;
+import ch.pitaya.pitaya.repository.V_FileSummaryRepository;
 import ch.pitaya.pitaya.security.SecurityFacade;
 import ch.pitaya.pitaya.service.CaseService;
 import ch.pitaya.pitaya.service.FileService;
@@ -64,6 +65,9 @@ public class CaseController {
 
 	@Autowired
 	private V_CaseSummaryRepository caseSummaryRepo;
+
+	@Autowired
+	private V_FileSummaryRepository fileSummaryRepo;
 
 	@Autowired
 	private Authorization auth;
@@ -103,10 +107,9 @@ public class CaseController {
 
 	@GetMapping("/{id}/files")
 	@AuthorizeCase(AuthCode.CASE_READ)
-	public Stream<FileSummary> getFileList(@PathVariable Long id) {
-		Firm firm = securityFacade.getCurrentFirm();
-		return caseRepository.findByIdAndFirm(id, firm).map(caseService::getFileList)
-				.orElseThrow(() -> new ResourceNotFoundException("case", "id", id));
+	public Stream<V_FileSummary> getFileList(@PathVariable Long id) {
+		Long userId = securityFacade.getCurrentUserId();
+		return fileSummaryRepo.findByCaseIdAndUserId(id, userId).stream().filter(f -> auth.test(f, AuthCode.FILE_READ));
 	}
 
 	@PatchMapping("/{id}")

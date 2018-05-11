@@ -5,7 +5,8 @@ drop table if exists `v_file_auth`;
 drop view  if exists `v_file_auth`;
 drop table if exists `v_case_auth`;
 drop view  if exists `v_case_auth`;
-
+drop table if exists `v_file_summary`;
+drop view  if exists `v_file_summary`;
 -- CASE SUMMARY VIEW INCLUDING CASE AND USER AUTHCODES
 create view `v_case_summary` as
 select
@@ -47,3 +48,19 @@ from ((cases c
 			on c.firm_id = u.firm_id)
 		left join case_auth_codes ca
 			on ca.case_id = c.id and ca.user_id = u.id);
+
+-- FILE SUMMARY VIEW
+create view `v_file_summary` as
+select
+	f.id,
+	f.case_id,
+	f.name,
+	f.cre_dat,
+	f.mod_dat,
+	(select count(*) from file_data where file_id = a.id) as revisions,
+	a.user_id,
+	a.file_auth,
+	a.case_auth,
+	a.user_auth
+from
+	files f join v_file_auth a on f.id = a.id;
