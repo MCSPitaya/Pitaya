@@ -38,6 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		try {
+			logger.info("authenticating a request for " + request.getServletPath());
 			boolean refreshToken = request.getServletPath().startsWith("/auth/");
 
 			TokenProvider tokenProvider = refreshToken ? refreshTokenProvider : accessTokenProvider;
@@ -45,9 +46,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			String token = getTokenFromRequest(request);
 
 			if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
+				logger.info("token looks fine");
 				if (!refreshToken || tokenService.isTokenInStore(token)) {
 					Long userId = tokenProvider.getUserIdFromToken(token);
 					UserPrincipal userDetails = customUserDetailsService.loadUserById(userId, token);
+					logger.info("user authenticated: " + userDetails);
 					if (userDetails.isActive()) {
 						UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
 								userDetails, null, userDetails.getAuthorities());
@@ -55,6 +58,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 						SecurityContextHolder.getContext().setAuthentication(authentication);
 					}
 				}
+			} else {
+				logger.warn("invalid authentication: " + token);
 			}
 		} catch (Exception ex) {
 			logger.error("Could not set user authentication in security context", ex);

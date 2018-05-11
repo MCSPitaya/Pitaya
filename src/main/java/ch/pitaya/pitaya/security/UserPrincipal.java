@@ -27,12 +27,12 @@ public class UserPrincipal implements UserDetails {
 
 	@JsonIgnore
 	private String password;
-	
+
 	@JsonIgnore
 	private String token;
 
 	private boolean active;
-	
+
 	private Collection<? extends GrantedAuthority> authorities;
 
 	public UserPrincipal(Long id, String name, String username, String email, String password,
@@ -101,7 +101,7 @@ public class UserPrincipal implements UserDetails {
 	public boolean isEnabled() {
 		return true;
 	}
-	
+
 	public String getToken() {
 		return token;
 	}
@@ -121,9 +121,16 @@ public class UserPrincipal implements UserDetails {
 
 		return Objects.hash(id);
 	}
-	
+
 	boolean isActive() {
 		return active;
 	}
-	
+
+	@Override
+	public String toString() {
+		return "UserPrincipal [id=" + id + ", name=" + name + ", username=" + username + ", email=" + email
+				+ ", password=" + password + ", token=" + token + ", active=" + active + ", authorities=" + authorities
+				+ "]";
+	}
+
 }
