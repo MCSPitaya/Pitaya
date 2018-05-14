@@ -89,8 +89,7 @@ public class RightsController {
 	@AuthorizeCase(value = AuthCode.CASE_READ_ROLES, param = "cid")
 	public AuthCodeResponse getCaseAuthCodes(@PathVariable("uid") Long uid, @PathVariable("cid") Long cid) {
 		Firm firm = securityFacade.getCurrentFirm();
-		Case c = caseRepo.findByIdAndFirm(cid, firm)
-				.orElseThrow(() -> new ResourceNotFoundException("case", "id", cid));
+		Case c = caseRepo.findById(cid).get();
 		return userRepo.findByIdAndFirm(uid, firm).map(u -> rightsService.getAuthCodes(u, c))
 				.orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
 	}
