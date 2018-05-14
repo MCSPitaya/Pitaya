@@ -1,6 +1,5 @@
 package ch.pitaya.pitaya.controller;
 
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -82,12 +81,9 @@ public class CaseController {
 	}
 
 	@GetMapping("/{id}")
+	@AuthorizeCase(AuthCode.CASE_READ)
 	public CaseDetails getCaseDetails(@PathVariable Long id) {
-		Firm firm = securityFacade.getCurrentFirm();
-		Optional<Case> case_ = caseRepository.findByIdAndFirm(id, firm).filter(c -> auth.test(c, AuthCode.CASE_READ));
-		if (case_.isPresent())
-			return new CaseDetails(case_.get());
-		throw new ResourceNotFoundException("case", "id", id);
+		return new CaseDetails(caseRepository.findById(id).get());
 	}
 
 	@PostMapping
