@@ -1,6 +1,7 @@
 package ch.pitaya.pitaya.model;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.MapKeyJoinColumn;
 import javax.persistence.OneToMany;
@@ -24,8 +26,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
 @Entity
-@Table(name = "files", uniqueConstraints = { //
-		@UniqueConstraint(columnNames = { "case_id", "name" }) })
+@Table(name = "files")
 public class File {
 
 	@Id
@@ -43,6 +44,11 @@ public class File {
 	@OneToMany(mappedBy = "file")
 	@OrderBy("cre_dat DESC")
 	private List<Notification> notifications;
+
+	@ManyToMany
+	@CollectionTable(name = "file_cases", joinColumns = @JoinColumn(name = "file_id"), uniqueConstraints = {
+			@UniqueConstraint(columnNames = { "file_id", "cases_id" }) })
+	private List<Case> cases = new ArrayList<>();
 
 	@ElementCollection
 	@MapKeyJoinColumn(name = "user_id")
@@ -80,6 +86,7 @@ public class File {
 		this.mod_dat = this.cre_dat;
 		cre_user = user;
 		mod_user = user;
+		this.cases.add(theCase);
 	}
 
 	public Long getId() {
@@ -88,10 +95,6 @@ public class File {
 
 	public String getName() {
 		return name;
-	}
-
-	public Case getCase() {
-		return theCase;
 	}
 
 	public void setId(Long id) {
@@ -137,11 +140,11 @@ public class File {
 	public void setModificationTime(Timestamp mod_dat) {
 		this.mod_dat = mod_dat;
 	}
-	
+
 	public void setMod_user(User mod_user) {
 		this.mod_user = mod_user;
 	}
-	
+
 	public void updateModification(User user) {
 		this.mod_dat = new Timestamp(System.currentTimeMillis());
 		this.mod_user = user;
@@ -153,6 +156,10 @@ public class File {
 
 	public User getModificationUser() {
 		return mod_user;
+	}
+
+	public List<Case> getCases() {
+		return cases;
 	}
 
 }

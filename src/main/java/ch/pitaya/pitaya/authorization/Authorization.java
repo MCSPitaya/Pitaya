@@ -64,7 +64,14 @@ public class Authorization {
 
 	public boolean test(File file, AuthCode... authCodes) {
 		User user = securityFacade.getCurrentUser();
-		return test(user.getAuthCodes(), file.getCase().getAuthCodes(user), file.getAuthCodes(user), authCodes);
+		return test(user.getAuthCodes(), file.getCases().stream().map(c -> c.getAuthCodes(user)).reduce((a, b) -> {
+			if (a == null)
+				return b;
+			else if (b == null)
+				return a;
+			else
+				return a + "," + b;
+		}).orElse(null), file.getAuthCodes(user), authCodes);
 	}
 
 	public boolean test(AuthCodeProvider provider, AuthCode... need) {

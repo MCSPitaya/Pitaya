@@ -26,6 +26,7 @@ import ch.pitaya.pitaya.model.User;
 import ch.pitaya.pitaya.payload.request.PatchFileDetailsRequest;
 import ch.pitaya.pitaya.repository.FileDataRepository;
 import ch.pitaya.pitaya.repository.FileRepository;
+import ch.pitaya.pitaya.util.Utils;
 
 @Service
 public class FileService {
@@ -77,18 +78,13 @@ public class FileService {
 		}
 	}
 
-	public void patchFile(PatchFileDetailsRequest request, File file, User user) {
-		if (request.getName() != null) {
-			Optional<File> file__ = fileRepository.findByNameAndTheCaseId(request.getName(), file.getCase().getId());
-			if (file__.isPresent()) {
-				throw new BadRequestException("File with that name already exists for this case");
-			} else {
-				file.setName(request.getName());
-				file.updateModification(user);
-				notificationService.add(NotificationType.FILE_MODIFIED, file);
-			}
-		}
+	public void patchFile(PatchFileDetailsRequest request, Long fileId, User user) {
+		File file = fileRepository.findById(fileId).get();
+		String oldName = file.getName();
+		Utils.ifNotNull(request.getName(), file::setName);
+		file.updateModification(user);
 		fileRepository.save(file);
+		notificationService.add(NotificationType.FILE_MODIFIED, file, oldName);
 	}
 
 	public void createFileDownload(HttpServletResponse response, File file) {

@@ -48,11 +48,11 @@ public class NotificationService {
 	}
 
 	public void add(NotificationType type, File file) {
-		add(type, file.getCase(), file, null);
+		add(type, null, file, null);
 	}
 
 	public void add(NotificationType type, File file, String notes) {
-		add(type, file.getCase(), file, notes);
+		add(type, null, file, notes);
 	}
 
 	public void add(NotificationType type, Case theCase, File file, String notes) {

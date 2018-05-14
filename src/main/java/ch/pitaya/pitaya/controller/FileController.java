@@ -50,8 +50,7 @@ public class FileController {
 	public ResponseEntity<?> patchFileDetails(@PathVariable("id") Long id,
 			@RequestBody PatchFileDetailsRequest request) {
 		User user = securityFacade.getCurrentUser();
-		File file = fileRepository.findById(id).get();
-		fileService.patchFile(request, file, user);
+		fileService.patchFile(request, id, user);
 		return SimpleResponse.ok("Update successful");
 	}
 

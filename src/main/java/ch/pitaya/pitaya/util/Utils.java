@@ -2,6 +2,7 @@ package ch.pitaya.pitaya.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -27,6 +28,11 @@ public class Utils {
 		if (size > 0)
 			stream = stream.limit(size);
 		return stream.collect(Collectors.toList());
+	}
+
+	public static <T> void ifNotNull(T t, Consumer<T> c) {
+		if (t != null)
+			c.accept(t);
 	}
 
 	public static <T, F> F ifNotNull(T t, Function<T, F> f) {

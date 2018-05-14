@@ -31,9 +31,6 @@ public class Case {
 	private Firm firm;
 
 	@OneToMany(mappedBy = "theCase")
-	private List<File> files;
-
-	@OneToMany(mappedBy = "theCase")
 	@OrderBy("cre_dat DESC")
 	private List<Notification> notifications;
 
@@ -57,9 +54,12 @@ public class Case {
 	@JoinColumn(name = "mod_uid", nullable = false, updatable = true)
 	private User mod_user;
 	
-	@ElementCollection
-    @CollectionTable(name = "case_clients", joinColumns = @JoinColumn(name = "case_id"))
-    @Column(name = "client_id")
+	@ManyToMany
+	@CollectionTable(name = "case_clients", joinColumns = @JoinColumn(name = "case_id"),
+	uniqueConstraints= {
+			@UniqueConstraint(columnNames= {"case_id", "clients_id"})
+	})
+	
 	private List<Client> clients = new ArrayList<>();
 	
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -120,10 +120,6 @@ public class Case {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public List<File> getFiles() {
-		return files;
 	}
 
 	public List<Notification> getNotifications() {
