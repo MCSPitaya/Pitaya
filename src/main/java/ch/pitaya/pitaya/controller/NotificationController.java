@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 import ch.pitaya.pitaya.authorization.AuthCode;
 import ch.pitaya.pitaya.authorization.AuthorizeCase;
 import ch.pitaya.pitaya.authorization.AuthorizeFile;
+import ch.pitaya.pitaya.exception.NotImplementedException;
 import ch.pitaya.pitaya.exception.ResourceNotFoundException;
 import ch.pitaya.pitaya.model.Case;
-import ch.pitaya.pitaya.model.File;
 import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.model.Notification;
 import ch.pitaya.pitaya.model.User;
@@ -78,11 +78,14 @@ public class NotificationController {
 			@PathVariable("id") long fileId, //
 			@RequestParam(name = "page", defaultValue = "0") int page,
 			@RequestParam(name = "size", defaultValue = "0") int size) {
+		throw new NotImplementedException("file notifications currently not supported");
+		/*
 		Firm firm = securityFacade.getCurrentFirm();
 		File file = fileRepository.findByIdAndTheCaseFirm(fileId, firm)
 				.orElseThrow(() -> new ResourceNotFoundException("file", "id", fileId));
 		List<Notification> notifications = notificationService.getFileNotifications(file, page, size);
 		return Utils.map(notifications, NotificationResponse::new);
+		*/
 	}
 
 }

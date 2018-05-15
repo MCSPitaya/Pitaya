@@ -33,10 +33,6 @@ public class File {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne(optional = false, fetch = FetchType.LAZY)
-	@JoinColumn(name = "case_id", nullable = false, updatable = false)
-	private Case theCase;
-
 	@OrderBy("cre_dat DESC")
 	@OneToMany(mappedBy = "file")
 	private List<FileData> fileData;
@@ -80,7 +76,6 @@ public class File {
 	}
 
 	public File(String name, Case theCase, User user) {
-		this.theCase = theCase;
 		this.name = name;
 		this.cre_dat = new Timestamp(System.currentTimeMillis());
 		this.mod_dat = this.cre_dat;
@@ -105,9 +100,6 @@ public class File {
 		this.name = name;
 	}
 
-	public void setCase(Case theCase) {
-		this.theCase = theCase;
-	}
 
 	public List<FileData> getFileData() {
 		return fileData;

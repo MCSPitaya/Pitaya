@@ -12,6 +12,7 @@ import ch.pitaya.pitaya.exception.NotImplementedException;
 import ch.pitaya.pitaya.model.Case;
 import ch.pitaya.pitaya.model.File;
 import ch.pitaya.pitaya.model.User;
+import ch.pitaya.pitaya.model.V_FileAuth;
 import ch.pitaya.pitaya.payload.request.AuthCodeChangeRequest;
 import ch.pitaya.pitaya.payload.response.AuthCodeResponse;
 import ch.pitaya.pitaya.repository.CaseRepository;
@@ -43,9 +44,9 @@ public class RightsService {
 		return new AuthCodeResponse(ex, im);
 	}
 
-	public AuthCodeResponse getAuthCodes(User user, File f) {
-		HashMap<String, List<AuthCode>> ex = getAuthCodes(user, f, true);
-		HashMap<String, List<AuthCode>> im = getAuthCodes(user, f, false);
+	public AuthCodeResponse getAuthCodes(V_FileAuth f) {
+		HashMap<String, List<AuthCode>> ex = getAuthCodes(f, true);
+		HashMap<String, List<AuthCode>> im = getAuthCodes(f, false);
 		return new AuthCodeResponse(ex, im);
 	}
 
@@ -73,15 +74,15 @@ public class RightsService {
 		return map;
 	}
 
-	private HashMap<String, List<AuthCode>> getAuthCodes(User user, File f, boolean explicit) {
+	private HashMap<String, List<AuthCode>> getAuthCodes(V_FileAuth f, boolean explicit) {
 		HashMap<String, List<AuthCode>> map = new HashMap<>();
 		if (explicit) {
-			map.put("file", resolver.getFileCodes(f.getAuthCodes(user), explicit));
+			map.put("file", resolver.getFileCodes(f.getFileAuthCodes(), explicit));
 			return map;
 		} else {
+			map.put("file", resolver.decode(f.getUserAuthCodes(), f.getCaseAuthCodes(), f.getFileAuthCodes(),
+					resolver::isFileCode));
 			throw new NotImplementedException("");
-/*			map.put("file", resolver.decode(user.getAuthCodes(), f.getCase().getAuthCodes(user), f.getAuthCodes(user),
-					resolver::isFileCode));*/
 		}
 	}
 

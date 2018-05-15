@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 import javax.persistence.EntityManagerFactory;
 import javax.servlet.http.HttpServletResponse;
@@ -62,19 +61,14 @@ public class FileService {
 
 	public void addFile(Case caze, MultipartFile multipartFile, User user) {
 		File file = new File(multipartFile.getOriginalFilename(), caze, user);
-		Optional<File> file_ = fileRepository.findByNameAndTheCaseId(file.getName(), caze.getId());
-		if (file_.isPresent()) {
-			throw new BadRequestException("File with that name already exists for this case");
-		} else {
-			file = fileRepository.save(file);
-			try {
-				FileData fileData = new FileData(file,
-						createBlob(multipartFile.getInputStream(), multipartFile.getSize()), user);
-				fileData = fileDataRepository.save(fileData);
-				notificationService.add(NotificationType.FILE_CREATED, file);
-			} catch (IOException e) {
-				throw new BadRequestException("Upload failed", e);
-			}
+		file = fileRepository.save(file);
+		try {
+			FileData fileData = new FileData(file, createBlob(multipartFile.getInputStream(), multipartFile.getSize()),
+					user);
+			fileData = fileDataRepository.save(fileData);
+			notificationService.add(NotificationType.FILE_CREATED, file);
+		} catch (IOException e) {
+			throw new BadRequestException("Upload failed", e);
 		}
 	}
 

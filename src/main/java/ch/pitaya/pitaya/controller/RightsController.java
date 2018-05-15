@@ -19,12 +19,14 @@ import ch.pitaya.pitaya.model.Case;
 import ch.pitaya.pitaya.model.File;
 import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.model.User;
+import ch.pitaya.pitaya.model.V_FileAuth;
 import ch.pitaya.pitaya.payload.request.AuthCodeChangeRequest;
 import ch.pitaya.pitaya.payload.response.AuthCodeResponse;
 import ch.pitaya.pitaya.payload.response.SimpleResponse;
 import ch.pitaya.pitaya.repository.CaseRepository;
 import ch.pitaya.pitaya.repository.FileRepository;
 import ch.pitaya.pitaya.repository.UserRepository;
+import ch.pitaya.pitaya.repository.V_FileAuthRepository;
 import ch.pitaya.pitaya.security.SecurityFacade;
 import ch.pitaya.pitaya.service.RightsService;
 
@@ -47,6 +49,8 @@ public class RightsController {
 	private CaseRepository caseRepo;
 	@Autowired
 	private FileRepository fileRepo;
+	@Autowired
+	private V_FileAuthRepository fAuthRepo;
 
 	// #### YOUR OWN RIHTS ####
 
@@ -67,10 +71,9 @@ public class RightsController {
 
 	@GetMapping("/user/rights/file/{id}")
 	public AuthCodeResponse getMyFileCodes(@PathVariable Long id) {
-		User user = securityFacade.getCurrentUser();
-		return fileRepo.findByIdAndTheCaseFirm(id, user.getFirm()) //
+		return fAuthRepo.findByIdAndUserId(id, securityFacade.getCurrentUserId()) //
 				.filter(f -> auth.test(f, AuthCode.FILE_READ)) //
-				.map(f -> rightsService.getAuthCodes(user, f))
+				.map(f -> rightsService.getAuthCodes(f)) //
 				.orElseThrow(() -> new ResourceNotFoundException("file", "id", id));
 	}
 
@@ -97,11 +100,9 @@ public class RightsController {
 	@GetMapping("/user/{uid}/rights/file/{fid}")
 	@AuthorizeFile(value = AuthCode.FILE_READ_ROLES, param = "fid")
 	public AuthCodeResponse getFileAuthCodes(@PathVariable("uid") Long uid, @PathVariable("fid") Long fid) {
-		Firm firm = securityFacade.getCurrentFirm();
-		File f = fileRepo.findByIdAndTheCaseFirm(fid, firm)
-				.orElseThrow(() -> new ResourceNotFoundException("file", "id", fid));
-		return userRepo.findByIdAndFirm(uid, firm).map(u -> rightsService.getAuthCodes(u, f))
-				.orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
+		V_FileAuth fauth = fAuthRepo.findByIdAndUserId(fid, uid)
+				.orElseThrow(() -> new ResourceNotFoundException("user", "id", fid));
+		return rightsService.getAuthCodes(fauth);
 	}
 
 	// #### SET SOME DUDES RIGHTS ####
@@ -121,7 +122,7 @@ public class RightsController {
 
 	@PatchMapping("/user/{uid}/rights/case/{cid}")
 	@AuthorizeCase(value = AuthCode.CASE_CHANGE_ROLES, param = "cid")
-	public ResponseEntity<?> getCaseAuthCodes(@PathVariable("uid") long uid, @PathVariable("cid") Long cid,
+	public ResponseEntity<?> setCaseAuthCodes(@PathVariable("uid") long uid, @PathVariable("cid") Long cid,
 			AuthCodeChangeRequest r) {
 		User user = securityFacade.getCurrentUser();
 		if (uid == user.getId())
@@ -137,18 +138,21 @@ public class RightsController {
 
 	@PatchMapping("/user/{uid}/rights/file/{fid}")
 	@AuthorizeFile(value = AuthCode.FILE_CHANGE_ROLES, param = "fid")
-	public ResponseEntity<?> getFileAuthCodes(@PathVariable("uid") long uid, @PathVariable("fid") Long fid,
+	public ResponseEntity<?> setFileAuthCodes(@PathVariable("uid") long uid, @PathVariable("fid") Long fid,
 			AuthCodeChangeRequest r) {
-		User user = securityFacade.getCurrentUser();
-		if (uid == user.getId())
+		Long myId = securityFacade.getCurrentUserId();
+		Firm firm = securityFacade.getCurrentFirm();
+
+		if (uid == myId)
 			throw new BadRequestException("cannot modify your own rights!");
-		Firm firm = user.getFirm();
-		File f = fileRepo.findByIdAndTheCaseFirm(fid, firm)
+
+		File f = fileRepo.findById(fid) //
 				.orElseThrow(() -> new ResourceNotFoundException("file", "id", fid));
-		return userRepo.findByIdAndFirm(uid, firm).map(u -> {
-			rightsService.setAuthCodes(r, u, f);
-			return SimpleResponse.ok("update successful");
-		}).orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
+		User u = userRepo.findByIdAndFirm(uid, firm) //
+				.orElseThrow(() -> new ResourceNotFoundException("user", "id", uid));
+
+		rightsService.setAuthCodes(r, u, f);
+		return SimpleResponse.ok();
 	}
 
 }
