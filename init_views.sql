@@ -24,17 +24,20 @@ select
 	f.id,
 	u.id as user_id,
 	fa.auth_codes as file_auth,
-	ca.auth_codes as case_auth,
+	group_concat(ca.auth_codes) as case_auth,
 	u.auth_codes  as user_auth
-from ((((files f
+from (((((files f
+		join file_cases fc
+			on f.id = fc.file_id)
 		join cases c
-			on f.case_id = c.id)
+			on fc.cases_id = c.id)
 		join users u
 			on c.firm_id = u.firm_id)
 		left join file_auth_codes fa
 			on fa.file_id = f.id and fa.user_id = u.id)
 		left join case_auth_codes ca
-			on ca.case_id = c.id and ca.user_id = u.id);
+			on ca.case_id = c.id and ca.user_id = u.id)
+group by id, user_id;
 
 -- CASE AUTHORIZATION VIEW
 create view `v_case_auth` as
