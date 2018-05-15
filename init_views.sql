@@ -22,12 +22,12 @@ left join case_auth_codes a
 	and a.case_id = c.id;
 
 -- FILE AUTHORIZATION VIEW
-create view `v_file_auth` as
+create view v_file_auth as
 select
 	f.id,
 	u.id as user_id,
 	fa.auth_codes as file_auth,
-	group_concat(ca.auth_codes) as case_auth,
+	group_concat(coalesce(ca.auth_codes, u.auth_codes)) as case_auth,
 	u.auth_codes  as user_auth
 from (((((files f
 		join file_cases fc
