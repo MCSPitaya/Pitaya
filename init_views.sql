@@ -57,19 +57,22 @@ from ((cases c
 
 -- FILE SUMMARY VIEW
 create view `v_file_summary` as
-select
-	f.id,
-	f.case_id,
-	f.name,
-	f.cre_dat,
-	f.mod_dat,
-	(select count(*) from file_data where file_id = a.id) as revisions,
-	a.user_id,
-	a.file_auth,
-	a.case_auth,
-	a.user_auth
-from
-	files f join v_file_auth a on f.id = a.id;
+	select
+		f.id,
+		fc.cases_id as case_id,
+		f.name,
+		f.cre_dat,
+		f.mod_dat,
+		(select count(*) from file_data where file_id = a.id) as revisions,
+		a.user_id,
+		a.file_auth,
+		a.case_auth,
+		a.user_auth
+	from (files f
+			join v_file_auth a
+				on f.id = a.id)
+			join file_cases fc
+				on f.id = fc.file_id;
 
 -- CASE NOTIFICATIONS VIEW
 create view `v_case_notification` as
