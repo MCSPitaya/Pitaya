@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import ch.pitaya.pitaya.authorization.AuthCode;
 import ch.pitaya.pitaya.authorization.AuthCodeResolver;
-import ch.pitaya.pitaya.exception.NotImplementedException;
 import ch.pitaya.pitaya.model.Case;
 import ch.pitaya.pitaya.model.File;
 import ch.pitaya.pitaya.model.User;
@@ -82,8 +81,8 @@ public class RightsService {
 		} else {
 			map.put("file", resolver.decode(f.getUserAuthCodes(), f.getCaseAuthCodes(), f.getFileAuthCodes(),
 					resolver::isFileCode));
-			throw new NotImplementedException("");
 		}
+		return map;
 	}
 
 	public void setAuthCodesSafe(AuthCodeChangeRequest r, User u) {

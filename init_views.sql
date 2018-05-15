@@ -7,6 +7,9 @@ drop table if exists `v_case_auth`;
 drop view  if exists `v_case_auth`;
 drop table if exists `v_file_summary`;
 drop view  if exists `v_file_summary`;
+drop table if exists `v_case_notification`;
+drop view  if exists `v_case_notification`;
+
 -- CASE SUMMARY VIEW INCLUDING CASE AND USER AUTHCODES
 create view `v_case_summary` as
 select
@@ -67,3 +70,8 @@ select
 	a.user_auth
 from
 	files f join v_file_auth a on f.id = a.id;
+
+-- CASE NOTIFICATIONS VIEW
+create view `v_case_notification` as
+select n.*, fc.cases_id as file_case_id
+from notifications n left join file_cases fc on n.file_id = fc.file_id;

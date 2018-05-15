@@ -12,15 +12,15 @@ import org.springframework.web.bind.annotation.RestController;
 import ch.pitaya.pitaya.authorization.AuthCode;
 import ch.pitaya.pitaya.authorization.AuthorizeCase;
 import ch.pitaya.pitaya.authorization.AuthorizeFile;
-import ch.pitaya.pitaya.exception.NotImplementedException;
-import ch.pitaya.pitaya.exception.ResourceNotFoundException;
-import ch.pitaya.pitaya.model.Case;
+import ch.pitaya.pitaya.model.File;
 import ch.pitaya.pitaya.model.Firm;
 import ch.pitaya.pitaya.model.Notification;
 import ch.pitaya.pitaya.model.User;
+import ch.pitaya.pitaya.model.V_CaseNotification;
 import ch.pitaya.pitaya.payload.response.NotificationResponse;
 import ch.pitaya.pitaya.repository.CaseRepository;
 import ch.pitaya.pitaya.repository.FileRepository;
+import ch.pitaya.pitaya.repository.V_CaseNotificationRepository;
 import ch.pitaya.pitaya.security.SecurityFacade;
 import ch.pitaya.pitaya.service.NotificationService;
 import ch.pitaya.pitaya.util.Utils;
@@ -41,13 +41,16 @@ public class NotificationController {
 	@Autowired
 	FileRepository fileRepository;
 
+	@Autowired
+	V_CaseNotificationRepository vCaseNotRepo;
+
 	@GetMapping("/user/changes")
 	public List<NotificationResponse> getUserNotifications(//
 			@RequestParam(name = "page", defaultValue = "0") int page,
 			@RequestParam(name = "size", defaultValue = "0") int size) {
 		User user = securityFacade.getCurrentUser();
 		List<Notification> notifications = notificationService.getUserNotifications(user, page, size);
-		return Utils.map(notifications, NotificationResponse::new);
+		return Utils.map(notifications, NotificationResponse::of);
 	}
 
 	@GetMapping("/firm/changes")
@@ -56,7 +59,7 @@ public class NotificationController {
 			@RequestParam(name = "size", defaultValue = "0") int size) {
 		Firm firm = securityFacade.getCurrentFirm();
 		List<Notification> notifications = notificationService.getFirmNotifications(firm, page, size);
-		return Utils.map(notifications, NotificationResponse::new);
+		return Utils.map(notifications, NotificationResponse::of);
 	}
 
 	@GetMapping("/case/{id}/changes")
@@ -65,11 +68,8 @@ public class NotificationController {
 			@PathVariable("id") long caseId, //
 			@RequestParam(name = "page", defaultValue = "0") int page,
 			@RequestParam(name = "size", defaultValue = "0") int size) {
-		Firm firm = securityFacade.getCurrentFirm();
-		Case case_ = caseRepository.findByIdAndFirm(caseId, firm)
-				.orElseThrow(() -> new ResourceNotFoundException("case", "id", caseId));
-		List<Notification> notifications = notificationService.getCaseNotifications(case_, page, size);
-		return Utils.map(notifications, NotificationResponse::new);
+		List<V_CaseNotification> notifications = notificationService.getCaseNotifications(caseId, page, size);
+		return Utils.map(notifications, NotificationResponse::of);
 	}
 
 	@GetMapping("/file/{id}/changes")
@@ -78,14 +78,9 @@ public class NotificationController {
 			@PathVariable("id") long fileId, //
 			@RequestParam(name = "page", defaultValue = "0") int page,
 			@RequestParam(name = "size", defaultValue = "0") int size) {
-		throw new NotImplementedException("file notifications currently not supported");
-		/*
-		Firm firm = securityFacade.getCurrentFirm();
-		File file = fileRepository.findByIdAndTheCaseFirm(fileId, firm)
-				.orElseThrow(() -> new ResourceNotFoundException("file", "id", fileId));
+		File file = fileRepository.findById(fileId).get();
 		List<Notification> notifications = notificationService.getFileNotifications(file, page, size);
-		return Utils.map(notifications, NotificationResponse::new);
-		*/
+		return Utils.map(notifications, NotificationResponse::of);
 	}
 
 }
