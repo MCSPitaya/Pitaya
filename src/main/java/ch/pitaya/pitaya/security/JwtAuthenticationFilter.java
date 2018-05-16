@@ -38,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		try {
-			logger.info("authenticating a request for " + request.getServletPath());
+			logger.info("authenticating a request for " + request.getServletPath() + " from " + request.getRemoteAddr() + ":" + request.getRemotePort());
 			boolean refreshToken = request.getServletPath().startsWith("/auth/");
 
 			TokenProvider tokenProvider = refreshToken ? refreshTokenProvider : accessTokenProvider;
