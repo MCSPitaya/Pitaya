@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import ch.pitaya.pitaya.authorization.AuthCode;
 import ch.pitaya.pitaya.authorization.Authorization;
@@ -39,6 +40,7 @@ import ch.pitaya.pitaya.security.SecurityFacade;
 import ch.pitaya.pitaya.service.CaseService;
 import ch.pitaya.pitaya.service.FileService;
 import ch.pitaya.pitaya.service.NotificationService;
+import ch.pitaya.pitaya.service.SSEService;
 
 @RestController
 @RequestMapping("/api/case")
@@ -71,6 +73,9 @@ public class CaseController {
 	@Autowired
 	private Authorization auth;
 
+	@Autowired
+	private SSEService sse;
+
 	@GetMapping
 	@Transactional
 	public Object getCaseList() {
@@ -98,6 +103,7 @@ public class CaseController {
 				.orElseThrow(() -> new ResourceNotFoundException("court", "id", request.getCourtId()));
 		case_ = caseRepository.save(case_);
 		notificationService.add(NotificationType.CASE_CREATED, case_);
+		sse.emit(case_.getFirm().getId(), "cases", "update", "case created");
 		return new CaseDetails(case_);
 	}
 
@@ -113,6 +119,7 @@ public class CaseController {
 	public Object patchCase(@PathVariable("id") Long id) {
 		Case case_ = caseRepository.findById(id).get();
 		caseService.patchCase(case_);
+		sse.emit(case_.getFirm().getId(), "cases", "update", "case updated");
 		return SimpleResponse.ok("case updated");
 	}
 
@@ -123,6 +130,13 @@ public class CaseController {
 		Case case_ = caseRepository.findById(id).get();
 		fileService.addFile(case_, multipartFile, user);
 		return SimpleResponse.ok("Update successful");
+	}
+
+	// SSE ENDPOINTS
+	@GetMapping("/events")
+	public SseEmitter getCaseSSE() {
+		Long firmId = securityFacade.getCurrentFirmId();
+		return sse.create(firmId, "cases");
 	}
 
 }
