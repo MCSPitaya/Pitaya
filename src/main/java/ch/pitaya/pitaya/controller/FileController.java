@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -21,21 +22,30 @@ import org.springframework.web.multipart.MultipartFile;
 
 import ch.pitaya.pitaya.authorization.AuthCode;
 import ch.pitaya.pitaya.authorization.Authorization;
+import ch.pitaya.pitaya.authorization.AuthorizeCase;
 import ch.pitaya.pitaya.authorization.AuthorizeFile;
+import ch.pitaya.pitaya.exception.BadRequestException;
+import ch.pitaya.pitaya.model.Case;
 import ch.pitaya.pitaya.model.File;
+import ch.pitaya.pitaya.model.NotificationType;
 import ch.pitaya.pitaya.model.User;
 import ch.pitaya.pitaya.model.V_CaseSummary;
 import ch.pitaya.pitaya.payload.request.PatchFileDetailsRequest;
 import ch.pitaya.pitaya.payload.response.FileDetails;
 import ch.pitaya.pitaya.payload.response.SimpleResponse;
+import ch.pitaya.pitaya.repository.CaseRepository;
 import ch.pitaya.pitaya.repository.FileRepository;
 import ch.pitaya.pitaya.repository.V_CaseSummaryRepository;
 import ch.pitaya.pitaya.security.SecurityFacade;
 import ch.pitaya.pitaya.service.FileService;
+import ch.pitaya.pitaya.service.NotificationService;
 
 @RestController
 @RequestMapping("/api/file")
 public class FileController {
+
+	@Autowired
+	private NotificationService notificationService;
 
 	@Autowired
 	private SecurityFacade securityFacade;
@@ -45,6 +55,9 @@ public class FileController {
 
 	@Autowired
 	private FileRepository fileRepository;
+
+	@Autowired
+	private CaseRepository caseRepository;
 
 	@Autowired
 	private Authorization auth;
@@ -96,6 +109,23 @@ public class FileController {
 		File file = fileRepository.findById(id).get();
 		fileService.deleteFile(file, user);
 		return SimpleResponse.ok("Deletion successful");
+	}
+
+	@PostMapping("/{fid}/addToCase/{cid}")
+	@AuthorizeFile(value = AuthCode.FILE_EDIT, param = "fid")
+	@AuthorizeCase(value = AuthCode.CASE_CREATE_FILE, param = "cid")
+	@Transactional
+	public ResponseEntity<?> addToAnotherCase(@PathVariable Long fid, @PathVariable Long cid) {
+		File f = fileRepository.findById(fid).get();
+		Case c = caseRepository.findById(cid).get();
+		List<Case> caseList = f.getCases();
+		if (caseList.contains(c))
+			throw new BadRequestException("file " + fid + " already in case " + cid);
+		caseList.add(c);
+		f.updateModification(securityFacade.getCurrentUser());
+		fileRepository.save(f);
+		notificationService.add(NotificationType.FILE_ADDED_TO_CASE, f);
+		return SimpleResponse.ok("file added to case");
 	}
 
 }

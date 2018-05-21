@@ -100,7 +100,6 @@ public class File {
 		this.name = name;
 	}
 
-
 	public List<FileData> getFileData() {
 		return fileData;
 	}
