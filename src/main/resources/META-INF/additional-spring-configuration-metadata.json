@@ -23,5 +23,15 @@
     "name": "pitaya.auth.refresh.deletionRate",
     "type": "java.lang.Long",
     "description": "The interval in ms with which expired refresh tokens get deleted"
+  },
+  {
+    "name": "pitaya.sse.eviction.rate",
+    "type": "java.lang.Long",
+    "description": "The interval in ms with which stale SSE endpoints are evicted"
+  },
+  {
+    "name": "pitaya.sse.eviction.threshold",
+    "type": "java.lang.Integer",
+    "description": "A threshold above which evicition is done. SSE endpoints will only be evicted once at least that many emitters have been removed."
   }
 ]}
