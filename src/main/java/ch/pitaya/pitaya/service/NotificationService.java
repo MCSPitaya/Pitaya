@@ -56,6 +56,10 @@ public class NotificationService {
 		add(type, theCase, null, notes);
 	}
 
+	public void add(NotificationType type, User user, Case theCase) {
+		add(type, user, theCase.getFirm(), theCase, null, null, new Timestamp(new Date().getTime()));
+	}
+
 	public void add(NotificationType type, File file) {
 		add(type, null, file, null);
 	}

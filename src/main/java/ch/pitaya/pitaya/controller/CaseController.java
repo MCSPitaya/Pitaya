@@ -30,6 +30,7 @@ import ch.pitaya.pitaya.model.NotificationType;
 import ch.pitaya.pitaya.model.User;
 import ch.pitaya.pitaya.model.V_FileSummary;
 import ch.pitaya.pitaya.payload.request.CreateCaseRequest;
+import ch.pitaya.pitaya.payload.request.PatchCaseRequest;
 import ch.pitaya.pitaya.payload.response.CaseDetails;
 import ch.pitaya.pitaya.payload.response.SimpleResponse;
 import ch.pitaya.pitaya.repository.CaseRepository;
@@ -116,11 +117,13 @@ public class CaseController {
 
 	@PatchMapping("/{id}")
 	@AuthorizeCase(AuthCode.CASE_MODIFY)
-	public Object patchCase(@PathVariable("id") Long id) {
+	public Object patchCase(@PathVariable("id") Long id, @Valid @RequestBody PatchCaseRequest request) {
+		Long firmId = securityFacade.getCurrentFirmId();
 		Case case_ = caseRepository.findById(id).get();
-		caseService.patchCase(case_);
-		sse.emit(case_.getFirm().getId(), "cases", "update", "case updated");
-		return SimpleResponse.ok("case updated");
+		boolean changed = caseService.patchCase(case_, securityFacade.getCurrentUser(), request);
+		if (changed)
+			sse.emit(firmId, "cases", "update", "case updated");
+		return SimpleResponse.ok(changed ? "case updated" : "case unchanged");
 	}
 
 	@PostMapping("/{id}/file")
