@@ -1,8 +1,10 @@
 package ch.pitaya.pitaya.payload.response;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import ch.pitaya.pitaya.model.File;
+import ch.pitaya.pitaya.model.V_CaseSummary;
 
 public class FileDetails {
 
@@ -11,8 +13,9 @@ public class FileDetails {
 	private int revisions;
 	private Timestamp created, modified;
 	private UserSummary createdBy, modifiedBy;
+	private List<V_CaseSummary> cases;
 
-	public FileDetails(File f) {
+	public FileDetails(File f, List<V_CaseSummary> cases) {
 		this.id = f.getId();
 		this.name = f.getName();
 		this.revisions = f.getFileData().size();
@@ -20,6 +23,7 @@ public class FileDetails {
 		modified = f.getModificationTime();
 		this.createdBy = new UserSummary(f.getCreationUser());
 		this.modifiedBy = new UserSummary(f.getModificationUser());
+		this.cases = cases;
 	}
 
 	public Long getId() {
@@ -50,4 +54,8 @@ public class FileDetails {
 		return modifiedBy;
 	}
 
+	public List<V_CaseSummary> getCases() {
+		return cases;
+	}
+	
 }
