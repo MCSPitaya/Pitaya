@@ -14,6 +14,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import ch.pitaya.pitaya.service.LogService;
 import ch.pitaya.pitaya.service.Logger;
 import ch.pitaya.pitaya.service.TokenService;
 
@@ -24,6 +25,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	@Autowired
 	private TokenProvider refreshTokenProvider;
+
+	@Autowired
+	private LogService tracing;
 
 	@Autowired
 	private TokenService tokenService;
@@ -38,7 +42,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		try {
-			logger.get().info("authenticating a request for " + request.getServletPath() + " from " + request.getRemoteAddr() + ":" + request.getRemotePort());
+			logger.get().info("authenticating a request for " + request.getServletPath() + " from "
+					+ request.getRemoteAddr() + ":" + request.getRemotePort());
 			boolean refreshToken = request.getServletPath().startsWith("/auth/");
 
 			TokenProvider tokenProvider = refreshToken ? refreshTokenProvider : accessTokenProvider;
@@ -57,9 +62,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 						authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 						SecurityContextHolder.getContext().setAuthentication(authentication);
 					}
+					tracing.logRequest(request.getRemoteAddr(), request.getServletPath(), true, userId);
+				} else {
+					tracing.logRequest(request.getRemoteAddr(), request.getServletPath(), true, null);
 				}
 			} else {
 				logger.get().warn("invalid authentication: " + token);
+				tracing.logRequest(request.getRemoteAddr(), request.getServletPath(), token != null, null);
 			}
 		} catch (Exception ex) {
 			logger.get().error("Could not set user authentication in security context", ex);
@@ -75,4 +84,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		}
 		return null;
 	}
+
 }

@@ -1,10 +1,14 @@
 package ch.pitaya.pitaya;
 
+import java.util.concurrent.Executor;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import ch.pitaya.pitaya.model.Court;
@@ -16,6 +20,7 @@ import ch.pitaya.pitaya.repository.UserRepository;
 
 @SpringBootApplication
 @EnableScheduling
+@EnableAsync
 public class PitayaApplication {
 
 	public static void main(String[] args) {
@@ -23,7 +28,8 @@ public class PitayaApplication {
 	}
 
 	@Bean
-	CommandLineRunner init(UserRepository userRepo, CourtRepository courtRepo, FirmRepository firmRepo, PasswordEncoder bcrypt) {
+	CommandLineRunner init(UserRepository userRepo, CourtRepository courtRepo, FirmRepository firmRepo,
+			PasswordEncoder bcrypt) {
 		return args -> {
 			// create test user
 			if (!userRepo.findByUsernameOrEmail("test", "test").isPresent()) {
@@ -42,12 +48,19 @@ public class PitayaApplication {
 			}
 			// create a few court records to work with
 			if (courtRepo.findAll().isEmpty()) {
-				Court court1 = new Court("Kanzlei Schlichtungsbehörde", "Bäumleingasse", "5", "Basel", "4051", "+41 61 267 64 39", null);
-				Court court2 = new Court("Schlichtungsbehörde Bern-Mittelland", "Effingerstrasse", "34", "Bern", "3008", "+41 31 635 47 50", null);
+				Court court1 = new Court("Kanzlei Schlichtungsbehörde", "Bäumleingasse", "5", "Basel", "4051",
+						"+41 61 267 64 39", null);
+				Court court2 = new Court("Schlichtungsbehörde Bern-Mittelland", "Effingerstrasse", "34", "Bern", "3008",
+						"+41 31 635 47 50", null);
 				courtRepo.save(court1);
 				courtRepo.save(court2);
 			}
 		};
+	}
+
+	@Bean(name = "threadPoolTaskExecutor")
+	public Executor threadPoolTaskExecutor() {
+		return new ThreadPoolTaskExecutor();
 	}
 
 }
