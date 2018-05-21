@@ -41,48 +41,39 @@ public class NotificationService {
 	@Autowired
 	private FileRepository fileRepo;
 
-	@Async
 	public void add(NotificationType type) {
 		add(type, null, null, null);
 	}
 
-	@Async
 	public void add(NotificationType type, String notes) {
 		add(type, null, null, notes);
 	}
 
-	@Async
 	public void add(NotificationType type, Case theCase) {
 		add(type, theCase, null, null);
 	}
 
-	@Async
 	public void add(NotificationType type, Case theCase, String notes) {
 		add(type, theCase, null, notes);
 	}
 
-	@Async
 	public void add(NotificationType type, User user, Case theCase) {
 		add(type, user, theCase.getFirm(), theCase, null, null, new Timestamp(new Date().getTime()));
 	}
 
-	@Async
 	public void add(NotificationType type, File file) {
 		add(type, null, file, null);
 	}
 
-	@Async
 	public void add(NotificationType type, File file, String notes) {
 		add(type, null, file, notes);
 	}
 
-	@Async
 	public void add(NotificationType type, Case theCase, File file, String notes) {
 		User user = security.getCurrentUser();
 		add(type, user, user.getFirm(), theCase, file, notes, new Timestamp(new Date().getTime()));
 	}
 
-	@Async
 	public void add(NotificationType type, User user, Firm firm, Case theCase, File file, String notes,
 			Timestamp time) {
 		Notification notification = new Notification(type, user, firm, theCase, file, time, notes);
