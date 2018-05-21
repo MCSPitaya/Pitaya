@@ -42,8 +42,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		try {
-			logger.get().info("authenticating a request for " + request.getServletPath() + " from "
-					+ request.getRemoteAddr() + ":" + request.getRemotePort());
+			logger.get()
+					.info("authenticating a request for " + request.getServletPath() + " from "
+							+ request.getRemoteAddr() + ":" + request.getRemotePort() + " && "
+							+ request.getHeader("User-Agent"));
 			boolean refreshToken = request.getServletPath().startsWith("/auth/");
 
 			TokenProvider tokenProvider = refreshToken ? refreshTokenProvider : accessTokenProvider;
@@ -62,13 +64,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 						authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 						SecurityContextHolder.getContext().setAuthentication(authentication);
 					}
-					tracing.logRequest(request.getRemoteAddr(), request.getServletPath(), true, userId);
+					tracing.logRequest(request.getRemoteAddr(), request.getServletPath(), true, userId,
+							request.getHeader("User-Agent"));
 				} else {
-					tracing.logRequest(request.getRemoteAddr(), request.getServletPath(), true, null);
+					tracing.logRequest(request.getRemoteAddr(), request.getServletPath(), true, null,
+							request.getHeader("User-Agent"));
 				}
 			} else {
 				logger.get().warn("invalid authentication: " + token);
-				tracing.logRequest(request.getRemoteAddr(), request.getServletPath(), token != null, null);
+				tracing.logRequest(request.getRemoteAddr(), request.getServletPath(), token != null, null,
+						request.getHeader("User-Agent"));
 			}
 		} catch (Exception ex) {
 			logger.get().error("Could not set user authentication in security context", ex);

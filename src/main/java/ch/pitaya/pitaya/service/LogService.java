@@ -16,9 +16,9 @@ public class LogService {
 	private Logger logger;
 
 	@Async
-	public void logRequest(String ip, String endpoint, boolean hasToken, Long userId) {
+	public void logRequest(String ip, String endpoint, boolean hasToken, Long userId, String agent) {
 		logger.get().info("logging request from " + ip + " to " + endpoint);
-		requestLogRepo.save(new RequestLogEntry(ip, endpoint, hasToken, userId));
+		requestLogRepo.save(new RequestLogEntry(ip, endpoint, hasToken, userId, agent));
 	}
 
 }
