@@ -29,6 +29,9 @@ public class TokenService {
 
 	@Autowired
 	private TokenRepository tokenStoreRepository;
+	
+	@Autowired
+	private Logger logger;
 
 	public TokenPair generateTokenPair() {
 		Authentication auth = securityFacade.getAuthentication();
@@ -67,7 +70,7 @@ public class TokenService {
 	public void cleanTokenTable() {
 		List<Token> tokens = tokenStoreRepository.findExpiredTokens();
 		tokenStoreRepository.deleteAll(tokens);
-		System.out.println("deleted " + tokens.size() + " tokens");
+		logger.get().info("deleted " + tokens.size() + " tokens");
 	}
 
 }

@@ -16,6 +16,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import ch.pitaya.pitaya.service.Logger;
+
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, jsr250Enabled = true, prePostEnabled = true)
@@ -26,6 +28,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private JwtAuthenticationEntryPoint unauthorizedHandler;
+	
+	@Autowired
+	private Logger logger;
 
 	@Bean
 	public JwtAuthenticationFilter jwtAuthenticationFilter() {
@@ -36,14 +41,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	public TokenProvider accessTokenProvider( //
 			@Value("${pitaya.auth.access.secret}") String secret,
 			@Value("${pitaya.auth.access.expiration}") long expiration) {
-		return new JwtTokenProvider(secret, expiration);
+		return new JwtTokenProvider(secret, expiration, logger);
 	}
 
 	@Bean
 	public TokenProvider refreshTokenProvider( //
 			@Value("${pitaya.auth.refresh.secret}") String secret,
 			@Value("${pitaya.auth.refresh.expiration}") long expiration) {
-		return new JwtTokenProvider(secret, expiration);
+		return new JwtTokenProvider(secret, expiration, logger);
 	}
 
 	@Override

@@ -40,6 +40,9 @@ public class FileService {
 
 	@Autowired
 	private NotificationService notificationService;
+	
+	@Autowired
+	private Logger logger;
 
 	@Autowired
 	public FileService(EntityManagerFactory factory) {
@@ -111,11 +114,11 @@ public class FileService {
 
 	public void deleteFile(File file, User user) {
 		List<FileData> fileDataList = file.getFileData();
-		System.out.println("List with files to delete: " + fileDataList.size());
+		logger.get().info("List with files to delete: " + fileDataList.size());
 		fileDataRepository.deleteAll(fileDataList);
 		file.updateModification(user);
 		fileRepository.save(file);
 		notificationService.add(NotificationType.FILE_DELETED, file);
-		System.out.println("Deleted");
+		logger.get().info("Deleted");
 	}
 }

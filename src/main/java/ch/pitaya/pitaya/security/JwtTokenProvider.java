@@ -3,10 +3,9 @@ package ch.pitaya.pitaya.security;
 import java.sql.Timestamp;
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 
+import ch.pitaya.pitaya.service.Logger;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -19,13 +18,13 @@ public class JwtTokenProvider implements TokenProvider {
 
 	private final String secret;
 	private final long expiration;
+	private final Logger logger;
 
-	public JwtTokenProvider(String secret, long expiration) {
+	public JwtTokenProvider(String secret, long expiration, Logger logger) {
 		this.secret = secret;
 		this.expiration = expiration;
+		this.logger = logger;
 	}
-
-	private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
 	public RawToken generateToken(Authentication authentication) {
 
@@ -59,15 +58,15 @@ public class JwtTokenProvider implements TokenProvider {
 					.parseClaimsJws(authToken);
 			return true;
 		} catch (SignatureException ex) {
-			logger.error("Invalid JWT signature");
+			logger.get().error("Invalid JWT signature");
 		} catch (MalformedJwtException ex) {
-			logger.error("Invalid JWT token");
+			logger.get().error("Invalid JWT token");
 		} catch (ExpiredJwtException ex) {
-			logger.error("Expired JWT token");
+			logger.get().error("Expired JWT token");
 		} catch (UnsupportedJwtException ex) {
-			logger.error("Unsupported JWT token");
+			logger.get().error("Unsupported JWT token");
 		} catch (IllegalArgumentException ex) {
-			logger.error("JWT claims string is empty.");
+			logger.get().error("JWT claims string is empty.");
 		}
 		return false;
 	}

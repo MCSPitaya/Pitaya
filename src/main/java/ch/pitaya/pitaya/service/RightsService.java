@@ -51,9 +51,6 @@ public class RightsService {
 
 	private HashMap<String, List<AuthCode>> getAuthCodes(User user, boolean explicit) {
 		HashMap<String, List<AuthCode>> map = new HashMap<>();
-		System.out.println(user.getAuthCodes());
-		System.out.println(resolver);
-		System.out.println(resolver.getUserCodes(user.getAuthCodes(), explicit));
 		map.put("firm", resolver.getUserCodes(user.getAuthCodes(), explicit));
 		map.put("case", resolver.getCaseCodes(user.getAuthCodes(), explicit));
 		map.put("file", resolver.getFileCodes(user.getAuthCodes(), explicit));

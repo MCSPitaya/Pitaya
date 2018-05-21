@@ -7,8 +7,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +14,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import ch.pitaya.pitaya.service.Logger;
 import ch.pitaya.pitaya.service.TokenService;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -32,13 +31,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	@Autowired
 	private CustomUserDetailsService customUserDetailsService;
 
-	private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+	@Autowired
+	private Logger logger;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		try {
-			logger.info("authenticating a request for " + request.getServletPath() + " from " + request.getRemoteAddr() + ":" + request.getRemotePort());
+			logger.get().info("authenticating a request for " + request.getServletPath() + " from " + request.getRemoteAddr() + ":" + request.getRemotePort());
 			boolean refreshToken = request.getServletPath().startsWith("/auth/");
 
 			TokenProvider tokenProvider = refreshToken ? refreshTokenProvider : accessTokenProvider;
@@ -46,11 +46,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			String token = getTokenFromRequest(request);
 
 			if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
-				logger.info("token looks fine");
+				logger.get().info("token looks fine");
 				if (!refreshToken || tokenService.isTokenInStore(token)) {
 					Long userId = tokenProvider.getUserIdFromToken(token);
 					UserPrincipal userDetails = customUserDetailsService.loadUserById(userId, token);
-					logger.info("user authenticated: " + userDetails);
+					logger.get().info("user authenticated: " + userDetails);
 					if (userDetails.isActive()) {
 						UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
 								userDetails, null, userDetails.getAuthorities());
@@ -59,10 +59,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 					}
 				}
 			} else {
-				logger.warn("invalid authentication: " + token);
+				logger.get().warn("invalid authentication: " + token);
 			}
 		} catch (Exception ex) {
-			logger.error("Could not set user authentication in security context", ex);
+			logger.get().error("Could not set user authentication in security context", ex);
 		}
 
 		filterChain.doFilter(request, response);
