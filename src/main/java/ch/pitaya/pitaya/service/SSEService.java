@@ -8,4 +8,6 @@ public interface SSEService {
 
 	void emit(Long firmId, String path, String type, Object payload);
 
+	void evictEndpoints();
+	
 }

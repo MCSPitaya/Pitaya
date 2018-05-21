@@ -9,6 +9,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -34,6 +35,7 @@ class SSEServiceImpl implements SSEService {
 		this.EVICTION_THRESHOLD = threshold;
 	}
 
+	@Async
 	@Override
 	public void emit(Long firmId, String path, String type, Object payload) {
 		Endpoint endpoint = map.get(firmId + "/" + path);
@@ -79,6 +81,7 @@ class SSEServiceImpl implements SSEService {
 		removalCount.incrementAndGet();
 	}
 
+	@Override
 	@Scheduled(fixedRateString = "${pitaya.sse.eviction.rate}")
 	public void evictEndpoints() {
 		int removed = removalCount.get();
