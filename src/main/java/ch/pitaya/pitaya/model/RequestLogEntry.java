@@ -36,6 +36,8 @@ public class RequestLogEntry {
 
 	private String params;
 
+	private String url;
+
 	protected RequestLogEntry() {
 		// JPA
 	}
@@ -57,6 +59,11 @@ public class RequestLogEntry {
 			else
 				return a + "&" + x;
 		});
+		this.url = request.getRequestURL().toString();
+	}
+	
+	public String getUrl() {
+		return url;
 	}
 
 	public Long getId() {
