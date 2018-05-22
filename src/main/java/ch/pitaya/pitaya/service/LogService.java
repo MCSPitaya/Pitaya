@@ -20,8 +20,7 @@ public class LogService {
 	@Async
 	public void logRequest(HttpServletRequest request, boolean hasToken, Long userId) {
 		logger.get().info("logging request from " + request.getRemoteAddr() + " to " + request.getServletPath());
-		requestLogRepo.save(new RequestLogEntry(request.getRemoteAddr(), request.getServletPath(), hasToken, userId,
-				request.getHeader("User-Agent"), request.getMethod()));
+		requestLogRepo.save(new RequestLogEntry(request, hasToken, userId));
 	}
 
 }

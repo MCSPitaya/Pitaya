@@ -1,12 +1,14 @@
 package ch.pitaya.pitaya.model;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.servlet.http.HttpServletRequest;
 
 @Entity
 @Table(name = "request_log")
@@ -27,24 +29,34 @@ public class RequestLogEntry {
 	private Long userId;
 
 	private Timestamp timestamp;
-	
+
 	private String agent;
-	
+
 	private String method;
+
+	private String params;
 
 	protected RequestLogEntry() {
 		// JPA
 	}
 
-	public RequestLogEntry(String ip, String endpoint, boolean token, Long userId, String agent, String method) {
-		this.ip = ip;
-		this.endpoint = endpoint;
-		this.token = token;
+	public RequestLogEntry(HttpServletRequest request, boolean hasToken, Long userId) {
+		ip = request.getRemoteAddr();
+		endpoint = request.getServletPath();
+		this.token = hasToken;
 		this.passed = userId != null;
 		this.userId = userId;
-		this.timestamp = new Timestamp(System.currentTimeMillis());
-		this.agent = agent;
-		this.method = method;
+		this.method = request.getMethod();
+		this.agent = request.getHeader("User-Agent");
+		this.params = request.getParameterMap().entrySet().stream().flatMap(entry -> {
+			String key = entry.getKey();
+			return Arrays.stream(entry.getValue()).map(elem -> key + "=" + elem);
+		}).reduce(null, (a, x) -> {
+			if (a == null)
+				return x;
+			else
+				return a + "&" + x;
+		});
 	}
 
 	public Long getId() {
@@ -74,13 +86,17 @@ public class RequestLogEntry {
 	public Long getUserId() {
 		return userId;
 	}
-	
+
 	public String getAgent() {
 		return agent;
 	}
-	
+
 	public String getMethod() {
 		return method;
+	}
+
+	public String getParams() {
+		return params;
 	}
 
 }
