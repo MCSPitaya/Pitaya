@@ -29,12 +29,14 @@ public class RequestLogEntry {
 	private Timestamp timestamp;
 	
 	private String agent;
+	
+	private String method;
 
 	protected RequestLogEntry() {
 		// JPA
 	}
 
-	public RequestLogEntry(String ip, String endpoint, boolean token, Long userId, String agent) {
+	public RequestLogEntry(String ip, String endpoint, boolean token, Long userId, String agent, String method) {
 		this.ip = ip;
 		this.endpoint = endpoint;
 		this.token = token;
@@ -42,6 +44,7 @@ public class RequestLogEntry {
 		this.userId = userId;
 		this.timestamp = new Timestamp(System.currentTimeMillis());
 		this.agent = agent;
+		this.method = method;
 	}
 
 	public Long getId() {
@@ -74,6 +77,10 @@ public class RequestLogEntry {
 	
 	public String getAgent() {
 		return agent;
+	}
+	
+	public String getMethod() {
+		return method;
 	}
 
 }

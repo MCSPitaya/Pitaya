@@ -64,16 +64,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 						authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 						SecurityContextHolder.getContext().setAuthentication(authentication);
 					}
-					tracing.logRequest(request.getRemoteAddr(), request.getServletPath(), true, userId,
-							request.getHeader("User-Agent"));
+					tracing.logRequest(request, true, userId);
 				} else {
-					tracing.logRequest(request.getRemoteAddr(), request.getServletPath(), true, null,
-							request.getHeader("User-Agent"));
+					tracing.logRequest(request, true, null);
 				}
 			} else {
 				logger.get().warn("invalid authentication: " + token);
-				tracing.logRequest(request.getRemoteAddr(), request.getServletPath(), token != null, null,
-						request.getHeader("User-Agent"));
+				tracing.logRequest(request, token != null, null);
 			}
 		} catch (Exception ex) {
 			logger.get().error("Could not set user authentication in security context", ex);

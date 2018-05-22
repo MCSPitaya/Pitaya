@@ -1,5 +1,7 @@
 package ch.pitaya.pitaya.service;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -16,9 +18,10 @@ public class LogService {
 	private Logger logger;
 
 	@Async
-	public void logRequest(String ip, String endpoint, boolean hasToken, Long userId, String agent) {
-		logger.get().info("logging request from " + ip + " to " + endpoint);
-		requestLogRepo.save(new RequestLogEntry(ip, endpoint, hasToken, userId, agent));
+	public void logRequest(HttpServletRequest request, boolean hasToken, Long userId) {
+		logger.get().info("logging request from " + request.getRemoteAddr() + " to " + request.getServletPath());
+		requestLogRepo.save(new RequestLogEntry(request.getRemoteAddr(), request.getServletPath(), hasToken, userId,
+				request.getHeader("User-Agent"), request.getMethod()));
 	}
 
 }
