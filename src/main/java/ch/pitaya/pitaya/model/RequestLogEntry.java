@@ -60,6 +60,7 @@ public class RequestLogEntry {
 				return a + "&" + x;
 		});
 		this.url = request.getRequestURL().toString();
+		this.timestamp = new Timestamp(System.currentTimeMillis());
 	}
 	
 	public String getUrl() {
