@@ -43,7 +43,7 @@ public class Case {
 	@Column(nullable = false, updatable = false)
 	private Timestamp cre_dat;
 
-	@Column(nullable = false, updatable = false)
+	@Column(nullable = false, updatable = true)
 	private Timestamp mod_dat;
 	
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
